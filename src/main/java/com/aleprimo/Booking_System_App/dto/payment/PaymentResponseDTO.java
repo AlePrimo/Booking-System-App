@@ -1,5 +1,6 @@
 package com.aleprimo.Booking_System_App.dto.payment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -10,7 +11,12 @@ import java.math.BigDecimal;
 @Builder
 public class PaymentResponseDTO {
 
+    @Schema(description = "ID único del pago", example = "101")
     private Long id;
+
+    @Schema(description = "ID de la reserva asociada al pago", example = "15")
     private Long bookingId;
+
+    @Schema(description = "Monto total del pago", example = "2500.00")
     private BigDecimal amount;
 }
