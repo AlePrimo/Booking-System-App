@@ -6,6 +6,8 @@ import com.aleprimo.Booking_System_App.persistence.PaymentDAO;
 import com.aleprimo.Booking_System_App.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,31 +20,31 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentDAO paymentDAO;
 
     @Override
-    @Operation(summary = "Crear un nuevo pago")
+
     public Payment createPayment(Payment payment) {
         return paymentDAO.save(payment);
     }
 
     @Override
-    @Operation(summary = "Obtener pago por ID")
+
     public Optional<Payment> getPaymentById(Long id) {
         return paymentDAO.findById(id);
     }
 
     @Override
-    @Operation(summary = "Obtener pago por ID de reserva")
+
     public Optional<Payment> getPaymentByBookingId(Long bookingId) {
         return paymentDAO.findByBookingId(bookingId);
     }
 
     @Override
-    @Operation(summary = "Obtener todos los pagos")
-    public List<Payment> getAllPayments() {
-        return paymentDAO.findAll();
+
+    public Page<Payment> getAllPayments(Pageable pageable) {
+        return paymentDAO.findAll(pageable);
     }
 
     @Override
-    @Operation(summary = "Eliminar un pago")
+
     public void deletePayment(Long id) {
         paymentDAO.deleteById(id);
     }

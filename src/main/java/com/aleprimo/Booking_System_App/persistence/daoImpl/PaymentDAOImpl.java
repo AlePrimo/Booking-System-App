@@ -5,6 +5,8 @@ import com.aleprimo.Booking_System_App.entity.Payment;
 import com.aleprimo.Booking_System_App.persistence.PaymentDAO;
 import com.aleprimo.Booking_System_App.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,8 +34,8 @@ public class PaymentDAOImpl implements PaymentDAO {
     }
 
     @Override
-    public List<Payment> findAll() {
-        return paymentRepository.findAll();
+    public Page<Payment> findAll(Pageable pageable) {
+        return paymentRepository.findAllPageable(pageable);
     }
 
     @Override

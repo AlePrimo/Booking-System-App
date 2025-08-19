@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface BookingService {
     Booking createBooking(Booking booking);
+    Booking updateBooking(Long id, Booking booking);
+
     Booking updateBookingStatus(Long id, BookingStatus status);
     void deleteBooking(Long id);
     Optional<Booking> getBookingById(Long id);
