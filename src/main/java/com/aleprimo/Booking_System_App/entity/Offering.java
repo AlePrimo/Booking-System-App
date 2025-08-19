@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "offerings")
 @Getter
@@ -30,8 +32,8 @@ public class Offering {
     private Integer durationMinutes;
 
     @NotNull
-    @Column(nullable = false)
-    private Double price;
+    @Column(nullable = false,precision = 10, scale = 2)
+    private BigDecimal price;
 
 
     @ManyToOne

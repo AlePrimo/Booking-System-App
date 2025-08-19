@@ -33,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
         booking1.setStatus(booking.getStatus());
         booking1.setBookingDateTime(booking.getBookingDateTime());
         booking1.setOffering(booking.getOffering());
-        
+
 
         return bookingDAO.save(booking1);
     }

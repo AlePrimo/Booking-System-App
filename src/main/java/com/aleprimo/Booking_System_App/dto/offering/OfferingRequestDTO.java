@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class OfferingRequestDTO {
     private int durationMinutes;
 
     @Min(value = 0, message = "El precio debe ser positivo")
-    private double price;
+    private BigDecimal price;
 
     @NotNull(message = "El proveedor es obligatorio")
     private Long providerId;
