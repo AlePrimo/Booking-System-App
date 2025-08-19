@@ -26,6 +26,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public Booking updateBooking(Long id, Booking booking) {
+        Booking booking1 = bookingDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        booking1.setCustomer(booking.getCustomer());
+        booking1.setStatus(booking.getStatus());
+        booking1.setBookingDateTime(booking.getBookingDateTime());
+        booking1.setOffering(booking.getOffering());
+        
+
+        return bookingDAO.save(booking1);
+    }
+
+    @Override
 
     public Booking updateBookingStatus(Long id, BookingStatus status) {
         Booking booking = bookingDAO.findById(id)
