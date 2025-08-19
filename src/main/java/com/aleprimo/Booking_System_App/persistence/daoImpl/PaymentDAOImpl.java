@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+
 import java.util.Optional;
 
 @Repository
@@ -35,7 +35,7 @@ public class PaymentDAOImpl implements PaymentDAO {
 
     @Override
     public Page<Payment> findAll(Pageable pageable) {
-        return paymentRepository.findAllPageable(pageable);
+        return paymentRepository.findAll(pageable);
     }
 
     @Override
