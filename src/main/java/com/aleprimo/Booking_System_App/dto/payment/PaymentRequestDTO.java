@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,5 +16,5 @@ public class PaymentRequestDTO {
     private Long bookingId;
 
     @Min(value = 0, message = "El monto debe ser positivo")
-    private double amount;
+    private BigDecimal amount;
 }

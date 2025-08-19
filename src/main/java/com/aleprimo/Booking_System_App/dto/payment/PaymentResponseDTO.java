@@ -2,6 +2,8 @@ package com.aleprimo.Booking_System_App.dto.payment;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -10,5 +12,5 @@ public class PaymentResponseDTO {
 
     private Long id;
     private Long bookingId;
-    private double amount;
+    private BigDecimal amount;
 }
