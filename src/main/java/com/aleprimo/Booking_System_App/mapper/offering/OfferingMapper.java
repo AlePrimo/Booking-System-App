@@ -4,17 +4,19 @@ package com.aleprimo.Booking_System_App.mapper.offering;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingRequestDTO;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Offering;
+import com.aleprimo.Booking_System_App.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OfferingMapper {
 
-    public  Offering toEntity(OfferingRequestDTO dto) {
+    public  Offering toEntity(OfferingRequestDTO dto, User provider) {
         return Offering.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .durationMinutes(dto.getDurationMinutes())
                 .price(dto.getPrice())
+                .provider(provider)
                 .build();
     }
 

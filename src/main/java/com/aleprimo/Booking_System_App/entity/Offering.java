@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -26,7 +27,7 @@ public class Offering {
 
     @Column(length = 500)
     private String description;
-
+@Min(1)
     @NotNull
     @Column(nullable = false)
     private Integer durationMinutes;

@@ -19,6 +19,6 @@ public class NotificationRequestDTO {
     @NotNull(message = "El destinatario es obligatorio")
     private Long recipientId;
 
-    @Schema(description = "Indica si la notificación ya fue enviada", example = "false")
-    private boolean sent = false;
+//    @Schema(description = "Indica si la notificación ya fue enviada", example = "false")
+//    private boolean sent = false;
 }
