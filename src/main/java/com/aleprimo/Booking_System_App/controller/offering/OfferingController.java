@@ -4,8 +4,10 @@ package com.aleprimo.Booking_System_App.controller.offering;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingRequestDTO;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Offering;
+import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.mapper.offering.OfferingMapper;
 import com.aleprimo.Booking_System_App.service.OfferingService;
+import com.aleprimo.Booking_System_App.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +26,7 @@ public class OfferingController {
 
     private final OfferingService offeringService;
     private final OfferingMapper offeringMapper;
+    private final UserService userService;
 
     @PostMapping
     @Operation(summary = "Crear un nuevo servicio",
@@ -33,7 +36,10 @@ public class OfferingController {
                    @ApiResponse(responseCode = "400", description = "Error de validación")
                })
     public ResponseEntity<OfferingResponseDTO> createOffering(@Valid @RequestBody OfferingRequestDTO dto) {
-        Offering offering = offeringService.createOffering(offeringMapper.toEntity(dto));
+        User provider = userService.getUserById(dto.getProviderId())
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID " + dto.getProviderId()));
+
+        Offering offering = offeringService.createOffering(offeringMapper.toEntity(dto, provider));
         return ResponseEntity.ok(offeringMapper.toDTO(offering));
     }
 
@@ -45,7 +51,10 @@ public class OfferingController {
                })
     public ResponseEntity<OfferingResponseDTO> updateOffering(@PathVariable Long id,
                                                               @Valid @RequestBody OfferingRequestDTO dto) {
-        Offering offering = offeringService.updateOffering(id, offeringMapper.toEntity(dto));
+        User provider = userService.getUserById(dto.getProviderId())
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID " + dto.getProviderId()));
+
+        Offering offering = offeringService.updateOffering(id, offeringMapper.toEntity(dto, provider));
         return ResponseEntity.ok(offeringMapper.toDTO(offering));
     }
 
