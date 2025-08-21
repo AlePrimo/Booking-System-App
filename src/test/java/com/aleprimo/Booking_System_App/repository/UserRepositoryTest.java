@@ -1,7 +1,8 @@
 package com.aleprimo.Booking_System_App.repository;
 
-import com.tu.paquete.model.Role;
-import com.tu.paquete.model.User;
+
+import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.entity.enums.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

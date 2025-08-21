@@ -1,16 +1,20 @@
 package com.aleprimo.Booking_System_App.controller;
 
+import com.aleprimo.Booking_System_App.controller.user.UserController;
+import com.aleprimo.Booking_System_App.dto.user.UserRequestDTO;
+import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.entity.enums.Role;
+import com.aleprimo.Booking_System_App.mapper.user.UserMapper;
+import com.aleprimo.Booking_System_App.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tu.paquete.dto.UserRequestDTO;
-import com.tu.paquete.mapper.UserMapper;
-import com.tu.paquete.model.Role;
-import com.tu.paquete.model.User;
-import com.tu.paquete.service.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -36,10 +40,10 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private UserService userService;
 
-    @MockBean
+    @Mock
     private UserMapper userMapper;
 
     private User user;

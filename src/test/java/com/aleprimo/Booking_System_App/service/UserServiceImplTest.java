@@ -1,9 +1,10 @@
 package com.aleprimo.Booking_System_App.service;
 
-import com.tu.paquete.dao.UserDAO;
-import com.tu.paquete.model.Role;
-import com.tu.paquete.model.User;
-import com.tu.paquete.service.impl.UserServiceImpl;
+
+import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.entity.enums.Role;
+import com.aleprimo.Booking_System_App.persistence.UserDAO;
+import com.aleprimo.Booking_System_App.service.serviceImpl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
