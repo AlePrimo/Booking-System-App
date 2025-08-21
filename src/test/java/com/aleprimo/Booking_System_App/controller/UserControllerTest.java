@@ -15,10 +15,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
-import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -28,9 +29,10 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+@ActiveProfiles("test")
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
@@ -74,6 +76,7 @@ class UserControllerTest {
         when(userMapper.toDTO(any(User.class))).thenReturn(userMapper.toDTO(user));
 
         mockMvc.perform(post("/api/users")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestDTO)))
                 .andExpect(status().isOk())
@@ -87,6 +90,7 @@ class UserControllerTest {
         when(userMapper.toDTO(any(User.class))).thenReturn(userMapper.toDTO(user));
 
         mockMvc.perform(put("/api/users/1")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestDTO)))
                 .andExpect(status().isOk())
@@ -97,7 +101,7 @@ class UserControllerTest {
     void testDeleteUser() throws Exception {
         Mockito.doNothing().when(userService).deleteUser(1L);
 
-        mockMvc.perform(delete("/api/users/1"))
+        mockMvc.perform(delete("/api/users/1").with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
