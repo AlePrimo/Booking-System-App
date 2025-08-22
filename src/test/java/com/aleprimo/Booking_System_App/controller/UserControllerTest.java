@@ -128,9 +128,16 @@ class UserControllerTest {
 
     @Test
     void testGetUserById() throws Exception {
-      
+
         when(userService.getUserById(1L)).thenReturn(Optional.of(user));
-        when(userMapper.toDTO(user)).thenReturn(userMapper.toDTO(user));
+        when(userMapper.toDTO(any(User.class))).thenReturn(
+                UserResponseDTO.builder()
+                        .id(1L)
+                        .name("Juan Perez")
+                        .email("juan@mail.com")
+                        .roles(Set.of(Role.CUSTOMER))
+                        .build()
+        );
 
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
