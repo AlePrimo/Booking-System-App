@@ -148,7 +148,15 @@ class UserControllerTest {
     void testGetAllUsers() throws Exception {
         when(userService.getAllUsers(PageRequest.of(0, 10)))
                 .thenReturn(new PageImpl<>(List.of(user)));
-        when(userMapper.toDTO(any(User.class))).thenReturn(userMapper.toDTO(user));
+
+        when(userMapper.toDTO(any(User.class))).thenReturn(
+                UserResponseDTO.builder()
+                        .id(1L)
+                        .name("Juan Perez")
+                        .email("juan@mail.com")
+                        .roles(Set.of(Role.CUSTOMER))
+                        .build()
+        );
 
         mockMvc.perform(get("/api/users?page=0&size=10"))
                 .andExpect(status().isOk())
