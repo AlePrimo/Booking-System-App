@@ -2,6 +2,7 @@ package com.aleprimo.Booking_System_App.controller;
 
 import com.aleprimo.Booking_System_App.controller.user.UserController;
 import com.aleprimo.Booking_System_App.dto.user.UserRequestDTO;
+import com.aleprimo.Booking_System_App.dto.user.UserResponseDTO;
 import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.entity.enums.Role;
 import com.aleprimo.Booking_System_App.mapper.user.UserMapper;
@@ -10,16 +11,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 
+
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -34,6 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 @ActiveProfiles("test")
 @WebMvcTest(UserController.class)
+@WithMockUser(username = "admin", roles = {"ADMIN"})
 class UserControllerTest {
 
     @Autowired
@@ -42,11 +47,12 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Mock
+    @MockitoBean
     private UserService userService;
 
-    @Mock
+    @MockitoBean
     private UserMapper userMapper;
+
 
     private User user;
     private UserRequestDTO userRequestDTO;
@@ -71,9 +77,16 @@ class UserControllerTest {
 
     @Test
     void testCreateUser() throws Exception {
+        UserResponseDTO responseDTO = UserResponseDTO.builder()
+                .id(1L)
+                .name("Juan Perez")
+                .email("juan@mail.com")
+                .roles(Set.of(Role.CUSTOMER))
+                .build();
+
         when(userMapper.toEntity(any(UserRequestDTO.class))).thenReturn(user);
         when(userService.createUser(any(User.class))).thenReturn(user);
-        when(userMapper.toDTO(any(User.class))).thenReturn(userMapper.toDTO(user));
+        when(userMapper.toDTO(any(User.class))).thenReturn(responseDTO);
 
         mockMvc.perform(post("/api/users")
                         .with(csrf())
@@ -85,6 +98,7 @@ class UserControllerTest {
 
     @Test
     void testUpdateUser() throws Exception {
+
         when(userMapper.toEntity(any(UserRequestDTO.class))).thenReturn(user);
         when(userService.updateUser(eq(1L), any(User.class))).thenReturn(user);
         when(userMapper.toDTO(any(User.class))).thenReturn(userMapper.toDTO(user));
@@ -107,6 +121,7 @@ class UserControllerTest {
 
     @Test
     void testGetUserById() throws Exception {
+      
         when(userService.getUserById(1L)).thenReturn(Optional.of(user));
         when(userMapper.toDTO(user)).thenReturn(userMapper.toDTO(user));
 
