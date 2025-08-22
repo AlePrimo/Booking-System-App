@@ -101,7 +101,14 @@ class UserControllerTest {
 
         when(userMapper.toEntity(any(UserRequestDTO.class))).thenReturn(user);
         when(userService.updateUser(eq(1L), any(User.class))).thenReturn(user);
-        when(userMapper.toDTO(any(User.class))).thenReturn(userMapper.toDTO(user));
+        when(userMapper.toDTO(any(User.class))).thenReturn(
+                UserResponseDTO.builder()
+                        .id(1L)
+                        .name("Juan Perez")
+                        .email("juan@mail.com")
+                        .roles(Set.of(Role.CUSTOMER))
+                        .build()
+        );
 
         mockMvc.perform(put("/api/users/1")
                         .with(csrf())
