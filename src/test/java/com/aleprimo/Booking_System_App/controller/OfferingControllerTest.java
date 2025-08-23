@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,15 +30,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+
 import static org.mockito.ArgumentMatchers.any;
+
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OfferingController.class)
 @ActiveProfiles("test")
+@WithMockUser(username = "admin", roles = {"ADMIN"})
 class OfferingControllerTest {
 
     @Autowired
@@ -64,11 +68,13 @@ class OfferingControllerTest {
     void setUp() {
 
         provider = User.builder()
+                .id(1L)
                 .name("VANDALAY")
                 .email("vandalay@mail")
                 .password("vandalay124")
                 .roles(Set.of(Role.PROVIDER))
                 .build();
+        userService.createUser(provider);
 
 
         offering = Offering.builder()
@@ -84,6 +90,8 @@ class OfferingControllerTest {
                 .name("Test Offering")
                 .description("Desc")
                 .price(BigDecimal.valueOf(120.0))
+                .durationMinutes(15)
+                .providerId(provider.getId())
                 .build();
 
         responseDTO = OfferingResponseDTO.builder()
@@ -96,7 +104,8 @@ class OfferingControllerTest {
 
     @Test
     void testCreateOffering() throws Exception {
-        when(offeringMapper.toEntity(any(OfferingRequestDTO.class))).thenReturn(offering);
+        when(userService.getUserById(1L)).thenReturn(Optional.of(provider));
+        when(offeringMapper.toEntity(any(OfferingRequestDTO.class), eq(provider))).thenReturn(offering);
         when(offeringService.createOffering(any(Offering.class))).thenReturn(offering);
         when(offeringMapper.toDTO(any(Offering.class))).thenReturn(responseDTO);
 
@@ -108,6 +117,33 @@ class OfferingControllerTest {
                 .andExpect(jsonPath("$.id").value(1L));
     }
 
+
+    @Test
+    void testUpdateOffering() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(Optional.of(provider));
+        when(offeringMapper.toEntity(any(OfferingRequestDTO.class), eq(provider))).thenReturn(offering);
+        when(offeringService.updateOffering(eq(1L), any(Offering.class))).thenReturn(offering);
+        when(offeringMapper.toDTO(any(Offering.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(put("/api/offerings/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+
+    @Test
+    void testDeleteOffering() throws Exception {
+        mockMvc.perform(delete("/api/offerings/1").with(csrf()))
+                .andExpect(status().isNoContent());
+        verify(offeringService, times(1)).deleteOffering(1L);
+    }
+
+
+
+
     @Test
     void testGetOfferingById() throws Exception {
         when(offeringService.getOfferingById(1L)).thenReturn(Optional.of(offering));
@@ -117,6 +153,9 @@ class OfferingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Offering"));
     }
+
+
+
 
     @Test
     void testGetAllOfferings() throws Exception {
@@ -128,4 +167,7 @@ class OfferingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].name").value("Test Offering"));
     }
+
+
+
 }
