@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.dto.offering;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,7 @@ public class OfferingRequestDTO {
     private int durationMinutes;
 
     @Schema(description = "Precio del servicio o producto", example = "1500.00")
-    @Min(value = 0, message = "El precio debe ser positivo")
+    @DecimalMin(value = "0.0",inclusive = true, message = "El precio debe ser positivo")
     private BigDecimal price;
 
     @Schema(description = "ID del proveedor que ofrece el servicio", example = "3")
