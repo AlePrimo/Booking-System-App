@@ -2,6 +2,7 @@ package com.aleprimo.Booking_System_App.service.serviceImpl;
 
 
 import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.persistence.UserDAO;
 import com.aleprimo.Booking_System_App.service.UserService;
 
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     public User updateUser(Long id, User user) {
         User existing = userDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         existing.setName(user.getName());
         existing.setEmail(user.getEmail());
         existing.setPassword(user.getPassword());

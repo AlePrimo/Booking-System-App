@@ -5,6 +5,7 @@ import com.aleprimo.Booking_System_App.dto.offering.OfferingRequestDTO;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Offering;
 import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.mapper.offering.OfferingMapper;
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import com.aleprimo.Booking_System_App.service.UserService;
@@ -37,7 +38,7 @@ public class OfferingController {
                })
     public ResponseEntity<OfferingResponseDTO> createOffering(@Valid @RequestBody OfferingRequestDTO dto) {
         User provider = userService.getUserById(dto.getProviderId())
-                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID " + dto.getProviderId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Proveedor no encontrado con ID " + dto.getProviderId()));
 
         Offering offering = offeringService.createOffering(offeringMapper.toEntity(dto, provider));
         return ResponseEntity.ok(offeringMapper.toDTO(offering));
@@ -52,7 +53,7 @@ public class OfferingController {
     public ResponseEntity<OfferingResponseDTO> updateOffering(@PathVariable Long id,
                                                               @Valid @RequestBody OfferingRequestDTO dto) {
         User provider = userService.getUserById(dto.getProviderId())
-                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID " + dto.getProviderId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Proveedor no encontrado con ID " + dto.getProviderId()));
 
         Offering offering = offeringService.updateOffering(id, offeringMapper.toEntity(dto, provider));
         return ResponseEntity.ok(offeringMapper.toDTO(offering));

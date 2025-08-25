@@ -2,6 +2,7 @@ package com.aleprimo.Booking_System_App.dto.booking;
 
 
 import com.aleprimo.Booking_System_App.entity.enums.BookingStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class BookingResponseDTO {
     private Long offeringId;
 
     @Schema(description = "Fecha y hora de la reserva", example = "2025-09-01T10:30:00")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime bookingDateTime;
 
     @Schema(description = "Estado actual de la reserva", example = "CONFIRMED")

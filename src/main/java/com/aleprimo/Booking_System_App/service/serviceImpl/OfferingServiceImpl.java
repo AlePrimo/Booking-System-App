@@ -2,6 +2,7 @@ package com.aleprimo.Booking_System_App.service.serviceImpl;
 
 
 import com.aleprimo.Booking_System_App.entity.Offering;
+import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.persistence.OfferingDAO;
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +31,7 @@ public class OfferingServiceImpl implements OfferingService {
 
     public Offering updateOffering(Long id, Offering offering) {
         Offering existing = offeringDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
         existing.setName(offering.getName());
         existing.setDescription(offering.getDescription());
         existing.setDurationMinutes(offering.getDurationMinutes());

@@ -3,6 +3,7 @@ package com.aleprimo.Booking_System_App.service.serviceImpl;
 
 import com.aleprimo.Booking_System_App.entity.Booking;
 import com.aleprimo.Booking_System_App.entity.enums.BookingStatus;
+import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.persistence.BookingDAO;
 import com.aleprimo.Booking_System_App.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking updateBooking(Long id, Booking booking) {
         Booking booking1 = bookingDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
         booking1.setCustomer(booking.getCustomer());
         booking1.setStatus(booking.getStatus());
         booking1.setBookingDateTime(booking.getBookingDateTime());
@@ -42,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
 
     public Booking updateBookingStatus(Long id, BookingStatus status) {
         Booking booking = bookingDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
         booking.setStatus(status);
         return bookingDAO.save(booking);
     }
