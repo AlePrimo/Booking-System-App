@@ -118,6 +118,7 @@ class NotificationControllerTest {
 
         mockMvc.perform(get("/api/notifications/1"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.type").value("EMAIL"))
                 .andExpect(jsonPath("$.recipientId").value(1L));
     }
 
