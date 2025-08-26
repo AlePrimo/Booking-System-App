@@ -107,6 +107,7 @@ class NotificationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.type").value("EMAIL"))
                 .andExpect(jsonPath("$.id").value(1L));
     }
 
