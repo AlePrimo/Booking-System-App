@@ -76,18 +76,21 @@ class NotificationControllerTest {
                 .type(NotificationType.EMAIL)
                 .message("Test Notification")
                 .recipient(recipient)
+                .type(NotificationType.EMAIL)
                 .sent(false)
                 .build();
 
         requestDTO = NotificationRequestDTO.builder()
                 .recipientId(1L)
                 .message("Test Notification")
+                .type(NotificationType.EMAIL)
                 .build();
 
         responseDTO = NotificationResponseDTO.builder()
                 .id(1L)
                 .message("Test Notification")
                 .recipientId(1L)
+                .type(NotificationType.EMAIL)
                 .sent(false)
                 .build();
     }

@@ -14,6 +14,7 @@ public class NotificationMapper {
         return Notification.builder()
                 .message(dto.getMessage())
                 .recipient(recipient)
+                .sent(false)
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class NotificationMapper {
                 .message(entity.getMessage())
                 .recipientId(entity.getRecipient() != null ? entity.getRecipient().getId() : null)
                 .sent(entity.isSent())
+                .type(entity.getType())
                 .build();
     }
 }

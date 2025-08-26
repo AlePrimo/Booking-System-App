@@ -1,5 +1,6 @@
 package com.aleprimo.Booking_System_App.dto.notification;
 
+import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +19,10 @@ public class NotificationRequestDTO {
     @Schema(description = "ID del usuario destinatario de la notificación", example = "5")
     @NotNull(message = "El destinatario es obligatorio")
     private Long recipientId;
+
+    @Schema(description = "Tipo de notificación", example = "EMAIL")
+    @NotNull(message = "El tipo de notificación es obligatorio")
+    private NotificationType type;
 
 
 }
