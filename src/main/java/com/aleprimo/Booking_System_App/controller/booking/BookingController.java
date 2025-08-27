@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.controller.booking;
 
 
+import com.aleprimo.Booking_System_App.dto.PageResponse;
 import com.aleprimo.Booking_System_App.dto.booking.BookingRequestDTO;
 import com.aleprimo.Booking_System_App.dto.booking.BookingResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Booking;
@@ -11,6 +12,7 @@ import com.aleprimo.Booking_System_App.mapper.booking.BookingMapper;
 import com.aleprimo.Booking_System_App.service.BookingService;
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import com.aleprimo.Booking_System_App.service.UserService;
+import com.aleprimo.Booking_System_App.util.PageResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -101,9 +103,11 @@ public class BookingController {
                responses = {
                    @ApiResponse(responseCode = "200", description = "Lista de reservas")
                })
-    public ResponseEntity<Page<BookingResponseDTO>> getAllBookings(Pageable pageable) {
+    public ResponseEntity<PageResponse<BookingResponseDTO>> getAllBookings(Pageable pageable) {
         Page<BookingResponseDTO> page = bookingService.getAllBookings(pageable)
                 .map(bookingMapper::toDTO);
-        return ResponseEntity.ok(page);
+        return ResponseEntity.ok(PageResponseUtil.from(page));
+
+
     }
 }

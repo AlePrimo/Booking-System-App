@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.controller.offering;
 
 
+import com.aleprimo.Booking_System_App.dto.PageResponse;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingRequestDTO;
 import com.aleprimo.Booking_System_App.dto.offering.OfferingResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Offering;
@@ -9,6 +10,7 @@ import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.mapper.offering.OfferingMapper;
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import com.aleprimo.Booking_System_App.service.UserService;
+import com.aleprimo.Booking_System_App.util.PageResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -88,9 +90,9 @@ public class OfferingController {
                responses = {
                    @ApiResponse(responseCode = "200", description = "Lista de servicios")
                })
-    public ResponseEntity<Page<OfferingResponseDTO>> getAllOfferings(Pageable pageable) {
+    public ResponseEntity<PageResponse<OfferingResponseDTO>> getAllOfferings(Pageable pageable) {
         Page<OfferingResponseDTO> page = offeringService.getAllOfferings(pageable)
                 .map(offeringMapper::toDTO);
-        return ResponseEntity.ok(page);
+        return ResponseEntity.ok(PageResponseUtil.from(page));
     }
 }

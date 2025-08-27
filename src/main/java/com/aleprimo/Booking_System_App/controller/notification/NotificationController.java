@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.controller.notification;
 
 
+import com.aleprimo.Booking_System_App.dto.PageResponse;
 import com.aleprimo.Booking_System_App.dto.notification.NotificationRequestDTO;
 import com.aleprimo.Booking_System_App.dto.notification.NotificationResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Notification;
@@ -8,6 +9,7 @@ import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.mapper.notification.NotificationMapper;
 import com.aleprimo.Booking_System_App.service.NotificationService;
 import com.aleprimo.Booking_System_App.service.UserService;
+import com.aleprimo.Booking_System_App.util.PageResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,10 +61,10 @@ public class NotificationController {
                responses = {
                    @ApiResponse(responseCode = "200", description = "Lista de notificaciones")
                })
-    public ResponseEntity<Page<NotificationResponseDTO>> getAllNotifications(Pageable pageable) {
+    public ResponseEntity<PageResponse<NotificationResponseDTO>> getAllNotifications(Pageable pageable) {
         Page<NotificationResponseDTO> page = notificationService.getAllNotifications(pageable)
                 .map(notificationMapper::toDTO);
-        return ResponseEntity.ok(page);
+        return ResponseEntity.ok(PageResponseUtil.from(page));
     }
 
     @DeleteMapping("/{id}")
