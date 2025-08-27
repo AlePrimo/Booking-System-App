@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.controller.payment;
 
 
+import com.aleprimo.Booking_System_App.dto.PageResponse;
 import com.aleprimo.Booking_System_App.dto.payment.PaymentRequestDTO;
 import com.aleprimo.Booking_System_App.dto.payment.PaymentResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Booking;
@@ -8,6 +9,7 @@ import com.aleprimo.Booking_System_App.entity.Payment;
 import com.aleprimo.Booking_System_App.mapper.payment.PaymentMapper;
 import com.aleprimo.Booking_System_App.service.BookingService;
 import com.aleprimo.Booking_System_App.service.PaymentService;
+import com.aleprimo.Booking_System_App.util.PageResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,10 +52,10 @@ public class PaymentController {
 
     @GetMapping
     @Operation(summary = "Listar todos los pagos con paginación")
-    public ResponseEntity<Page<PaymentResponseDTO>> getAllPayments(Pageable pageable) {
+    public ResponseEntity<PageResponse<PaymentResponseDTO>> getAllPayments(Pageable pageable) {
         Page<PaymentResponseDTO> page = paymentService.getAllPayments(pageable)
                 .map(paymentMapper::toDTO);
-        return ResponseEntity.ok(page);
+        return ResponseEntity.ok(PageResponseUtil.from(page));
     }
 
 
