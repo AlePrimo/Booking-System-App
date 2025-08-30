@@ -1,131 +1,156 @@
-# 📅 Booking System App  
+# 📅 Booking System App
 
-Un sistema de reservas completo desarrollado con **Spring Boot**, que permite gestionar usuarios, servicios (offerings), reservas (bookings), pagos y notificaciones.  
-El proyecto incluye autenticación, paginación personalizada, manejo de excepciones y documentación con **Swagger UI**.  
+Un sistema de reservas completo desarrollado con **Spring Boot**, que permite gestionar usuarios, servicios (offerings), reservas (bookings), pagos y notificaciones.
 
----
-
-## 🚀 Tecnologías utilizadas  
-
-- **Java 21** ☕  
-- **Spring Boot 3**  
-  - Spring Web  
-  - Spring Data JPA  
-  - Spring Security  
-  - Spring Validation  
-- **Hibernate** (ORM)  
-- **MySQL** (Base de datos)  
-- **Maven** (Gestión de dependencias)  
-- **Lombok** (Reducción de boilerplate)  
-- **JUnit 5 & Mockito** (Pruebas unitarias e integración)  
-- **Swagger / OpenAPI 3** (Documentación interactiva)  
+El proyecto incluye autenticación, paginación personalizada, manejo de excepciones centralizado y documentación con **Swagger UI**.
 
 ---
 
-## 📂 Arquitectura del proyecto  
+## 🚀 Tecnologías utilizadas
 
-El proyecto sigue una **arquitectura en capas**, organizada de la siguiente forma:  
-
-- **Entity** → Representación de las tablas de la BD  
-- **Repository / DAO** → Acceso a datos  
-- **Service** → Lógica de negocio  
-- **Controller** → Exposición de endpoints REST  
-- **DTOs & Mappers** → Comunicación entre capas  
-- **Exception Handling** → Manejo centralizado de errores  
-- **Tests** → Cobertura para Repository, Service y Controller  
+- **Java 21** ☕
+- **Spring Boot 3**
+  - Spring Web
+  - Spring Data JPA
+  - Spring Security
+  - Spring Validation
+- **Hibernate (ORM)**
+- **MySQL** (Base de datos)
+- **Maven** (Gestión de dependencias)
+- **Lombok** (Reducción de boilerplate)
+- **JUnit 5 & Mockito** (Pruebas unitarias e integración)
+- **Swagger / OpenAPI 3** (Documentación interactiva)
 
 ---
 
-## ✨ Funcionalidades principales  
+## 📂 Arquitectura del proyecto
+
+El proyecto sigue una **arquitectura en capas**, organizada de la siguiente forma:
+
+```
+Entity → Representación de las tablas de la BD
+Repository / DAO → Acceso a datos
+Service → Lógica de negocio
+Controller → Exposición de endpoints REST
+DTOs & Mappers → Comunicación entre capas
+Exception Handling → Manejo centralizado de errores
+Tests → Cobertura para Repository, Service y Controller
+```
+
+📌 **Diagrama de Arquitectura (alto nivel):**
+
+```
+         [ Cliente / Frontend ]
+                  |
+             (Swagger UI)
+                  |
+            [ Controller ]
+                  |
+            [  Service  ]
+                  |
+    -----------------------------
+    |                           |
+[ Repository ]           [ Mapper / DTO ]
+    |                           |
+ [   Base de Datos (MySQL)   ]
+```
+
+---
+
+## ✨ Funcionalidades principales
 
 ✔️ Gestión de **Usuarios** con roles  
 ✔️ Gestión de **Servicios / Offerings**  
 ✔️ Creación y seguimiento de **Reservas (Bookings)**  
 ✔️ Registro de **Pagos (Payments)** asociados a reservas  
-✔️ Envío y gestión de **Notificaciones** (Email / SMS)  
-✔️ Paginación personalizada con wrapper `PageResponse<T>`  
+✔️ Envío y gestión de **Notificaciones (Email / SMS)**  
+✔️ **Paginación personalizada** con `PageResponse<T>`  
 ✔️ **Swagger UI** para probar la API de manera interactiva  
 ✔️ **Tests completos** de todas las capas  
 
 ---
 
-## 📖 Endpoints principales  
+## 📖 Endpoints principales
 
-### 🔹 Usuarios (`/api/users`)  
+### 🔹 Usuarios (`/api/users`)
 - `GET /api/users` → Listar usuarios con paginación  
 - `POST /api/users` → Crear usuario  
 - `GET /api/users/{id}` → Obtener usuario por ID  
 
-### 🔹 Servicios (`/api/offerings`)  
+### 🔹 Servicios (`/api/offerings`)
 - `GET /api/offerings` → Listar servicios con paginación  
 - `POST /api/offerings` → Crear servicio  
 - `GET /api/offerings/{id}` → Obtener servicio por ID  
 
-### 🔹 Reservas (`/api/bookings`)  
+### 🔹 Reservas (`/api/bookings`)
 - `GET /api/bookings` → Listar reservas con paginación  
 - `POST /api/bookings` → Crear reserva  
 - `GET /api/bookings/{id}` → Obtener reserva por ID  
 
-### 🔹 Pagos (`/api/payments`)  
+### 🔹 Pagos (`/api/payments`)
 - `GET /api/payments` → Listar pagos con paginación  
 - `POST /api/payments` → Crear pago  
 
-### 🔹 Notificaciones (`/api/notifications`)  
+### 🔹 Notificaciones (`/api/notifications`)
 - `GET /api/notifications` → Listar notificaciones con paginación  
 - `POST /api/notifications` → Crear notificación  
 - `DELETE /api/notifications/{id}` → Eliminar notificación  
 
 ---
 
-## 🛠️ Configuración  
+## 🛠️ Configuración
 
-1. Clonar el repositorio  
-   ```bash
-   git clone https://github.com/AlePrimo/Booking-System-App.git
-   cd Booking-System-App
-   ```
+### Clonar el repositorio
 
-2. Configurar la base de datos en `application.properties` o `application.yml`:  
-   ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/bookingdb
-   spring.datasource.username=root
-   spring.datasource.password=tu_clave
-   spring.jpa.hibernate.ddl-auto=update
-   ```
+```bash
+git clone https://github.com/AlePrimo/Booking-System-App.git
+cd Booking-System-App
+```
 
-3. Ejecutar el proyecto  
-   ```bash
-   mvn spring-boot:run
-   ```
+### Configurar la base de datos en `application.properties` o `application.yml`
 
----
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/bookingdb
+spring.datasource.username=root
+spring.datasource.password=tu_clave
+spring.jpa.hibernate.ddl-auto=update
+```
 
-## 📑 Documentación Swagger  
+### Ejecutar el proyecto
 
-Una vez levantado el proyecto, podés acceder a la documentación completa desde:  
-
-👉 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)  
-
-Ahí vas a poder probar todos los endpoints de manera interactiva.  
+```bash
+mvn spring-boot:run
+```
 
 ---
 
-## ✅ Testing  
+## 📑 Documentación Swagger
 
-El proyecto cuenta con **tests unitarios e integración** para todas las capas:  
+Una vez levantado el proyecto, accedé a la documentación completa desde:  
+
+👉 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+Ahí vas a poder probar todos los endpoints de manera interactiva.
+
+---
+
+## ✅ Testing
+
+El proyecto cuenta con **tests unitarios e integración** para todas las capas:
 
 - `RepositoryTest` → Pruebas de consultas a la BD  
 - `ServiceImplTest` → Pruebas de la lógica de negocio con Mockito  
-- `ControllerTest` → Pruebas de endpoints con `MockMvc` y `@WebMvcTest`  
+- `ControllerTest` → Pruebas de endpoints con MockMvc y @WebMvcTest  
 
-Para ejecutar los tests:  
+Ejecutar los tests:
+
 ```bash
 mvn test
 ```
 
 ---
 
-## 📌 Ejemplo de respuesta paginada  
+## 📌 Ejemplo de respuesta paginada
 
 ```json
 {
@@ -146,8 +171,10 @@ mvn test
 
 ---
 
-## 👨‍💻 Autor  
+## 👨‍💻 Autor
 
 **Alejandro Primo**  
 📌 Desarrollador Java Backend  
-🔗 [LinkedIn](https://www.linkedin.com/)  
+🔗 [LinkedIn](https://linkedin.com)
+
+---
