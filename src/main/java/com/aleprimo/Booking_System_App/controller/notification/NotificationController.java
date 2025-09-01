@@ -15,8 +15,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,7 +64,9 @@ public class NotificationController {
                responses = {
                    @ApiResponse(responseCode = "200", description = "Lista de notificaciones")
                })
-    public ResponseEntity<PageResponse<NotificationResponseDTO>> getAllNotifications(Pageable pageable) {
+    public ResponseEntity<PageResponse<NotificationResponseDTO>> getAllNotifications(
+            @ParameterObject
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<NotificationResponseDTO> page = notificationService.getAllNotifications(pageable)
                 .map(notificationMapper::toDTO);
         return ResponseEntity.ok(PageResponseUtil.from(page));
