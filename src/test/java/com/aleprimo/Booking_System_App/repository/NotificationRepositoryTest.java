@@ -31,6 +31,8 @@ class NotificationRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        notificationRepository.deleteAll();
+
         recipient = User.builder()
                 .name("Juan")
                 .email("juan@mail.com")
