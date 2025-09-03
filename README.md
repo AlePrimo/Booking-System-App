@@ -147,6 +147,7 @@ Ejecutar los tests:
 ```bash
 mvn test
 ```
+![Coverage](./jacoco.svg)
 
 ---
 
