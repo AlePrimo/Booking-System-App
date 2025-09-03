@@ -1,3 +1,4 @@
+
 name: CI - Booking System App
 
 on:
@@ -23,6 +24,27 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3. Compilar proyecto y correr tests con perfil test
+      # 3. Compilar proyecto y correr tests con perfil test (genera reporte JaCoCo en target/site/jacoco)
       - name: Build with Maven (test profile)
         run: mvn -B clean verify -Dspring.profiles.active=test
+
+      # 4. Subir reporte de cobertura como artefacto descargable
+      - name: Upload JaCoCo coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/index.html
+
+      # 5. Generar badge de cobertura con action externa
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: target/site/jacoco/jacoco.csv
+
+      # 6. Commit badge en el repo (si cambió la cobertura)
+      - name: Commit JaCoCo Badge
+        if: success()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update JaCoCo coverage badge"
+          branch: main
