@@ -147,10 +147,13 @@ Ejecutar los tests:
 ```bash
 mvn test
 ```
-## 📊 Coverage & Branches
 
-![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/badge-update/.github/badges/jacoco.svg)
-![Branches](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/badge-update/.github/badges/branches.svg)
+
+## Badges
+
+![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)
+![Branch](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/branches.svg)
+
 
 
 

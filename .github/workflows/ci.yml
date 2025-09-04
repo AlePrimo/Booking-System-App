@@ -23,29 +23,31 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # Build y tests (ejemplo)
+      # Build y tests (esto genera el reporte Jacoco)
       - name: Build with Maven
         run: mvn clean verify
 
-      # Generar badges (simulado, pero funcional)
-      - name: Generate badges
+      # Generar badge de cobertura con action oficial
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: target/site/jacoco/jacoco.csv
+          badges-directory: .github/badges
+
+      # Generar badge de branch (sencillo)
+      - name: Generate branch badge
         run: |
           mkdir -p .github/badges
-          # Badge de Jacoco (reemplazá con tu generador real si querés)
-          echo "<svg>FAKE_COVERAGE_BADGE</svg>" > .github/badges/jacoco.svg
-          # Badge de rama
-          echo "<svg>FAKE_BRANCH_BADGE</svg>" > .github/badges/branches.svg
+          echo "<svg xmlns='http://www.w3.org/2000/svg'><text x='10' y='20'>Branch: main</text></svg>" > .github/badges/branches.svg
 
-      # Commit y push solo si hay cambios
+      # Commit y push directo a main
       - name: Commit and push badges
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b badge-update || git checkout badge-update
           git add .github/badges/*.svg
-          # Solo commitea si hay cambios
           git diff --cached --quiet || git commit -m "chore: update badges"
-          git push origin badge-update --force
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
