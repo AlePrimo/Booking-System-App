@@ -11,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Descargar el código
+      # 1. Descargar el código completo para poder push
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 2. Configurar Java (JDK 21)
       - name: Set up JDK 21
