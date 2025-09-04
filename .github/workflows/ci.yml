@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3. Compilar proyecto y correr tests con perfil test (genera reporte JaCoCo en target/site/jacoco)
+      # 3. Compilar proyecto y correr tests con perfil test
       - name: Build with Maven (test profile)
         run: mvn -B clean verify -Dspring.profiles.active=test
 
@@ -34,17 +34,19 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/index.html
 
-      # 5. Generar badge de cobertura con action externa
+      # 5. Generar badge de cobertura
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2
         with:
           generate-branches-badge: true
           jacoco-csv-file: target/site/jacoco/jacoco.csv
 
-      # 6. Commit badge en el repo (si cambió la cobertura)
+      # 6. Commit y push del badge actualizado usando GITHUB_TOKEN
       - name: Commit JaCoCo Badge
-        if: success()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: update JaCoCo coverage badge"
           branch: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
