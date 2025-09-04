@@ -147,7 +147,8 @@ Ejecutar los tests:
 ```bash
 mvn test
 ```
-![Coverage](./jacoco.svg)
+![JaCoCo Coverage](https://github.com/AlePrimo/Booking-System-App/raw/badge-update/.github/badges/jacoco.svg)
+
 
 ---
 
