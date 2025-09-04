@@ -149,10 +149,13 @@ mvn test
 ```
 
 
-## Badges
 
+
+## 📊 Badges
+
+![Build](https://img.shields.io/github/actions/workflow/status/AlePrimo/Booking-System-App/ci.yml?branch=main&label=Build&logo=github&color=blue)
 ![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)
-![Branch](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/branches.svg)
+![Branch](https://img.shields.io/badge/Branch-main-brightgreen?logo=git)
 
 
 
