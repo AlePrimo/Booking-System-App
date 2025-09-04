@@ -11,11 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Descargar el código
+      # 1. Descargar el código y permitir push con GITHUB_TOKEN
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true  # importante para push automático
 
-      # 2. Configurar Java (JDK 21)
+      # 2. Configurar JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -23,37 +25,34 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3. Compilar proyecto y correr tests con perfil test
+      # 3. Compilar proyecto y ejecutar tests con perfil test
       - name: Build with Maven (test profile)
         run: mvn -B clean verify -Dspring.profiles.active=test
 
-      # 4. Generar badge JaCoCo
+      # 4. Subir reporte JaCoCo como artefacto descargable
+      - name: Upload JaCoCo coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/index.html
+
+      # 5. Generar badges SVG de cobertura
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2
         with:
           generate-branches-badge: true
           jacoco-csv-file: target/site/jacoco/jacoco.csv
 
-      # 5. Commit y push solo si hubo cambios
-      - name: Commit and push JaCoCo badge
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # Crear rama de badge
-          git checkout -b badge-update || git checkout badge-update
-          
-          # Agregar cambios
-          git add .github/badges/*.svg
-          
-          # Commit solo si hay cambios
-          git diff --cached --quiet || git commit -m "chore: update JaCoCo coverage badge"
-          
-          # Push usando token
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/AlePrimo/Booking-System-App.git
-          git push origin badge-update --force
+      # 6. Commit y push de badges solo si hay cambios
+      - name: Commit badge if changed
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: github-actions[bot]
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          message: "chore: update JaCoCo coverage badge"
+          add: ".github/badges/*.svg"
+          branch: badge-update
+          signoff: false
 
 
 
