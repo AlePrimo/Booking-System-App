@@ -50,9 +50,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/badges
-          # Solo commit si hay cambios
           if ! git diff --cached --quiet; then
             git commit -m "chore: update JaCoCo coverage badge"
+            # Forzar uso de token en la URL del remoto
+            git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/AlePrimo/Booking-System-App.git
             git push origin main
           else
             echo "No changes in badge, skipping commit."
