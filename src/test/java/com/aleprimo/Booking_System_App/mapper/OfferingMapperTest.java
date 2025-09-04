@@ -77,7 +77,7 @@ class OfferingMapperTest {
                 .description("No provider description")
                 .durationMinutes(30)
                 .price(BigDecimal.valueOf(50.0))
-                .provider(null) 
+                .provider(null)
                 .build();
 
         OfferingResponseDTO dto = offeringMapper.toDTO(entity);
