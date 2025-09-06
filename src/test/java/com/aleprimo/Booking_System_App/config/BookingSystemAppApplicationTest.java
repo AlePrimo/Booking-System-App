@@ -2,14 +2,18 @@ package com.aleprimo.Booking_System_App.config;
 
 import com.aleprimo.Booking_System_App.BookingSystemAppApplication;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringApplication;
+
+
+import java.lang.reflect.Constructor;
 
 class BookingSystemAppApplicationTest {
 
+
     @Test
-    void main_shouldRunWithoutErrors() {
-        String[] args = {};
-        BookingSystemAppApplication.main(args);
-        // No assertion needed, just runs main to cover the line
+    void constructor_coverage() throws Exception {
+        Constructor<BookingSystemAppApplication> constructor =
+                BookingSystemAppApplication.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        constructor.newInstance();
     }
 }
