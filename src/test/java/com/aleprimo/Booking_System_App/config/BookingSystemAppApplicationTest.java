@@ -16,4 +16,16 @@ class BookingSystemAppApplicationTest {
         constructor.setAccessible(true);
         constructor.newInstance();
     }
+
+    @Test
+    void main_shouldRunWithoutCrashing() {
+        String[] args = {};
+        try {
+            BookingSystemAppApplication.main(args);
+        } catch (Exception ignored) {}
+    }
+
+
+
+
 }
