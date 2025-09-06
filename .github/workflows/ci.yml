@@ -32,6 +32,7 @@ jobs:
         uses: cicirello/jacoco-badge-generator@v2
         with:
           jacoco-csv-file: target/site/jacoco/jacoco.csv
+          jacoco-xml-file: target/site/jacoco/jacoco.xml
           badges-directory: .github/badges
 
       # Generar badge de branch (sencillo)
@@ -50,6 +51,9 @@ jobs:
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
 
 
 
