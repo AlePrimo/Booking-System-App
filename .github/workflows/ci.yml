@@ -49,6 +49,7 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco
 
+
   # Publicar el reporte en GitHub Pages
   deploy-report:
     needs: build
@@ -81,6 +82,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: jacoco
+          destination: jacoco
 
       - name: Deploy to GitHub Pages
         id: deployment
