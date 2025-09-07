@@ -52,7 +52,7 @@ Tests → Cobertura para Repository, Service y Controller
     |                           |
 [ Repository ]           [ Mapper / DTO ]
     |                           |
- [   Base de Datos (MySQL)   ]
+ [   Base de Datos (PostgreSQL)   ]
 ```
 
 ---
@@ -110,7 +110,7 @@ cd Booking-System-App
 ### Configurar la base de datos en `application.properties` o `application.yml`
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/bookingdb
+spring.datasource.url=jdbc:postgresql://localhost:5432/booking_system
 spring.datasource.username=root
 spring.datasource.password=tu_clave
 spring.jpa.hibernate.ddl-auto=update
@@ -154,7 +154,7 @@ mvn test
 ## 📊 Badges
 
 ![Build](https://img.shields.io/github/actions/workflow/status/AlePrimo/Booking-System-App/ci.yml?branch=main&label=Build&logo=github&color=blue)
-![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)
+[![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)](https://aleprimo.github.io/Booking-System-App/jacoco/index.html)
 ![Branch](https://img.shields.io/badge/Branch-main-brightgreen?logo=git)
 
 
