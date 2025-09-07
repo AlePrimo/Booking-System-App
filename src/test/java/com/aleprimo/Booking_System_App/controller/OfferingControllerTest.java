@@ -168,6 +168,27 @@ class OfferingControllerTest {
                 .andExpect(jsonPath("$.content[0].name").value("Test Offering"));
     }
 
+    @Test
+    void testCreateOffering_UserNotFound() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/offerings")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testUpdateOffering_UserNotFound() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/api/offerings/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isNotFound());
+    }
 
 
 }
