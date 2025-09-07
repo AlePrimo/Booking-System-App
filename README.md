@@ -15,7 +15,8 @@ El proyecto incluye autenticación, paginación personalizada, manejo de excepci
   - Spring Security
   - Spring Validation
 - **Hibernate (ORM)**
-- **MySQL** (Base de datos)
+- **PostgreSQL** (Base de datos)
+- **H2** (Base de datos para pruebas)
 - **Maven** (Gestión de dependencias)
 - **Lombok** (Reducción de boilerplate)
 - **JUnit 5 & Mockito** (Pruebas unitarias e integración)
