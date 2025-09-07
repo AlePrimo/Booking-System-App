@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Guardar reporte como artefacto (opcional)
+      # Guardar reporte como artefacto
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v4
         with:
@@ -53,10 +53,16 @@ jobs:
   deploy-report:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: write
       pages: write
       id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
 
     steps:
       - name: Checkout repo
@@ -77,4 +83,5 @@ jobs:
           path: jacoco
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
