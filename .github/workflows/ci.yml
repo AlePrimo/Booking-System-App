@@ -75,15 +75,21 @@ jobs:
           name: jacoco-report
           path: jacoco
 
+      # Mover el reporte a la carpeta public/jacoco
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p public
+          mv jacoco public/jacoco
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload to Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: jacoco
-          destination: jacoco
+          path: public
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
