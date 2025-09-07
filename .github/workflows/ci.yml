@@ -25,12 +25,9 @@ jobs:
 
       # Build y tests (esto genera el reporte Jacoco)
       - name: Build with Maven
-#        run: mvn clean verify
-        run: mvn clean test jacoco:report
+        run: mvn clean verify jacoco:report
 
-
-
-      # Generar badge de cobertura con action oficial
+      # Generar badge de cobertura
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2
         with:
@@ -38,13 +35,7 @@ jobs:
           jacoco-xml-file: target/site/jacoco/jacoco.xml
           badges-directory: .github/badges
 
-      # Generar badge de branch (sencillo)
-      - name: Generate branch badge
-        run: |
-          mkdir -p .github/badges
-          echo "<svg xmlns='http://www.w3.org/2000/svg'><text x='10' y='20'>Branch: main</text></svg>" > .github/badges/branches.svg
-
-      # Commit y push directo a main
+      # Commit y push de los badges
       - name: Commit and push badges
         run: |
           git config user.name "github-actions[bot]"
@@ -55,8 +46,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Nuevo job: publicar el reporte en GitHub Pages
+  deploy-report:
+    runs-on: ubuntu-latest
+    needs: build
 
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
+      - name: Copy JaCoCo report
+        run: |
+          mkdir -p public/jacoco
+          cp -r target/site/jacoco/* public/jacoco/
 
-
-
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
