@@ -6,13 +6,15 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 class BookingSystemAppApplicationTest {
+
 
 
     @Test
     void constructor_coverage() throws Exception {
-        Constructor<BookingSystemAppApplication> constructor =
-                BookingSystemAppApplication.class.getDeclaredConstructor();
+        var constructor = BookingSystemAppApplication.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         constructor.newInstance();
     }
@@ -20,9 +22,7 @@ class BookingSystemAppApplicationTest {
     @Test
     void main_shouldRunWithoutCrashing() {
         String[] args = {};
-        try {
-            BookingSystemAppApplication.main(args);
-        } catch (Exception ignored) {}
+        assertDoesNotThrow(() -> BookingSystemAppApplication.main(args));
     }
 
 
