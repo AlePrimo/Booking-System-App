@@ -9,8 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 
-@ActiveProfiles("test")
-@SpringBootTest
 class BookingSystemAppApplicationTest {
 
 
