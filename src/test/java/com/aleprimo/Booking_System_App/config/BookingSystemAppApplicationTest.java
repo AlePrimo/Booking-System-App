@@ -2,12 +2,15 @@ package com.aleprimo.Booking_System_App.config;
 
 import com.aleprimo.Booking_System_App.BookingSystemAppApplication;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-
-import java.lang.reflect.Constructor;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+
+@ActiveProfiles("test")
+@SpringBootTest
 class BookingSystemAppApplicationTest {
 
 
@@ -23,6 +26,8 @@ class BookingSystemAppApplicationTest {
     void main_shouldRunWithoutCrashing() {
         String[] args = {};
         assertDoesNotThrow(() -> BookingSystemAppApplication.main(args));
+
+
     }
 
 
