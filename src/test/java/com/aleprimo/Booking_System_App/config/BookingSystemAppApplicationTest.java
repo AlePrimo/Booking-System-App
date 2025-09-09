@@ -21,7 +21,7 @@ class BookingSystemAppApplicationTest {
     void main_shouldRunWithoutCrashing() {
         String[] args = {
                 "--spring.main.web-application-type=none",
-                "--spring.main.lazy-initialization=true", 
+                "--spring.main.lazy-initialization=true",
                 "--spring.autoconfigure.exclude=" +
                         "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration," +
                         "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration," +

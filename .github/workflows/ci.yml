@@ -30,6 +30,7 @@ jobs:
           jacoco-csv-file: target/site/jacoco/jacoco.csv
           jacoco-xml-file: target/site/jacoco/jacoco.xml
           badges-directory: .github/badges
+          coverage-values: decimals
 
       # Commit y push de badges al repo
       - name: Commit and push badges
