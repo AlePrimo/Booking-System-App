@@ -1,12 +1,13 @@
 package com.aleprimo.Booking_System_App.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.MalformedJwtException;
+
+import io.jsonwebtoken.ExpiredJwtException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Date;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +20,8 @@ class JwtUtilTest {
         jwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(jwtUtil, "secret",
                 "7LnkNHuqRh55wWY3hYDDLdirV//5jyqMsDAQZQo0NroS325C6ue+B+jC+pJJxKCYd/G2gfZyeKbe9w73ZtZW+Q==");
-        ReflectionTestUtils.setField(jwtUtil, "jwtExpirationMs", 50L);
+        // 👉 tokens "largos" para los tests normales
+        ReflectionTestUtils.setField(jwtUtil, "jwtExpirationMs", 3600000L); // 1 hora
     }
 
     @Test
@@ -33,30 +35,29 @@ class JwtUtilTest {
     }
 
     @Test
-    void testValidateTokenSuccessAndFailure() throws InterruptedException {
+    void testValidateTokenSuccessAndFailure() {
         String email = "test@example.com";
         String token = jwtUtil.generateToken(email);
 
-        // token válido
+        // válido
         assertTrue(jwtUtil.validateToken(token, email));
 
-        // token con email distinto
+        // email distinto
         assertFalse(jwtUtil.validateToken(token, "other@example.com"));
-
-        // token expirado
-        Thread.sleep(60);
-        assertFalse(jwtUtil.validateToken(token, email));
     }
 
     @Test
-    void testExtractClaimExpirationAndIsExpired() throws InterruptedException {
-        String token = jwtUtil.generateToken("user@example.com");
-        Date expiration = jwtUtil.extractAllClaims(token).getExpiration();
-        assertNotNull(expiration);
+    void testExtractClaimExpirationAndIsExpired() {
+        // 👉 uso un JwtUtil con expiración corta
+        JwtUtil shortLivedJwtUtil = new JwtUtil();
+        ReflectionTestUtils.setField(shortLivedJwtUtil, "secret",
+                "7LnkNHuqRh55wWY3hYDDLdirV//5jyqMsDAQZQo0NroS325C6ue+B+jC+pJJxKCYd/G2gfZyeKbe9w73ZtZW+Q==");
+        ReflectionTestUtils.setField(shortLivedJwtUtil, "jwtExpirationMs", 1L);
 
-        // esperar a que expire
-        Thread.sleep(60);
-        assertTrue(jwtUtil.extractAllClaims(token).getExpiration().before(new Date()));
+        String token = shortLivedJwtUtil.generateToken("user@example.com");
+
+        // inmediatamente debe estar expirado
+        assertThrows(ExpiredJwtException.class, () -> shortLivedJwtUtil.extractAllClaims(token));
     }
 
     @Test

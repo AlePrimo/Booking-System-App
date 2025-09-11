@@ -87,7 +87,7 @@ class JwtAuthenticationFilterTest {
 
         filter.doFilterInternal(request, response, chain);
 
-        
+
         verify(chain, times(1)).doFilter(request, response);
     }
 }
