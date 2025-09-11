@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.security;
 
 import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.entity.enums.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,9 @@ import org.mockito.Mockito;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -36,12 +40,25 @@ class JwtAuthenticationFilterTest {
 
         when(request.getHeader("Authorization")).thenReturn("Bearer valid.token");
         when(jwtUtil.extractUsername("valid.token")).thenReturn("user@example.com");
-        when(userDetailsService.loadUserByUsername("user@example.com")).thenReturn(
-                new CustomUserDetails(User.builder().email("user@example.com").password("pass").build())
-        );
+
+
+
+        Set<Role> roles = new HashSet<>(Collections.singleton(Role.CUSTOMER));
+
+        User user = User.builder()
+                .email("user@example.com")
+                .password("pass")
+                .roles(roles) // <- clave
+                .build();
+
+        when(userDetailsService.loadUserByUsername("user@example.com"))
+                .thenReturn(new CustomUserDetails(user));
+
         when(jwtUtil.validateToken("valid.token", "user@example.com")).thenReturn(true);
 
         filter.doFilterInternal(request, response, chain);
+
+
         verify(chain, times(1)).doFilter(request, response);
     }
 
@@ -52,9 +69,11 @@ class JwtAuthenticationFilterTest {
         FilterChain chain = mock(FilterChain.class);
 
         when(request.getHeader("Authorization")).thenReturn("Bearer invalid.token");
-        when(jwtUtil.extractUsername("invalid.token")).thenThrow(new RuntimeException("bad token"));
+        when(jwtUtil.extractUsername("invalid.token"))
+                .thenThrow(new RuntimeException("bad token"));
 
         filter.doFilterInternal(request, response, chain);
+
         verify(chain, times(1)).doFilter(request, response);
     }
 
@@ -67,6 +86,8 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(null);
 
         filter.doFilterInternal(request, response, chain);
+
+        
         verify(chain, times(1)).doFilter(request, response);
     }
 }
