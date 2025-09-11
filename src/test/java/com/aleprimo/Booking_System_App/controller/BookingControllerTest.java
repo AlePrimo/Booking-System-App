@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BookingController.class)
 @ActiveProfiles("test")
 @WithMockUser(username = "admin", roles = {"ADMIN"})
+
 class BookingControllerTest {
 
     @Autowired
