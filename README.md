@@ -155,7 +155,7 @@ mvn test
 ## 📊 Badges
 
 ![Build](https://img.shields.io/github/actions/workflow/status/AlePrimo/Booking-System-App/ci.yml?branch=main&label=Build&logo=github&color=blue)
-[!Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)](https://aleprimo.github.io/Booking-System-App/jacoco/index.html)
+[![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)](https://aleprimo.github.io/Booking-System-App/jacoco/index.html)
 ![Branch](https://img.shields.io/badge/Branch-main-brightgreen?logo=git)
 
 
