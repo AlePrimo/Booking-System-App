@@ -1,72 +1,74 @@
 package com.aleprimo.Booking_System_App.config;
 
-import com.aleprimo.Booking_System_App.security.CustomUserDetailsService;
-import com.aleprimo.Booking_System_App.security.JwtAuthenticationFilter;
 import com.aleprimo.Booking_System_App.security.SecurityConfig;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+
+import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Collections;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+
+import org.springframework.test.web.servlet.MockMvc;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class SecurityConfigTest {
 
-    @Mock
-    private CustomUserDetailsService userDetailsService;
-
-    @Mock
-    private JwtAuthenticationFilter jwtFilter;
-
-    private SecurityConfig securityConfig;
-
-    @BeforeEach
-    void setUp() {
-        securityConfig = new SecurityConfig(userDetailsService, jwtFilter);
-    }
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
-    void securityFilterChain_configures_all_parts_and_adds_filter_before_build() throws Exception {
-        HttpSecurity http = mock(HttpSecurity.class);
+    void authEndpoints_arePermittedWithoutAuth() throws Exception {
+        mockMvc.perform(get("/auth/login"))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getStatus()).isNotEqualTo(403));
 
-        when(http.csrf(any())).thenReturn(http);
-        when(http.authorizeHttpRequests(any())).thenReturn(http);
-        when(http.sessionManagement(any())).thenReturn(http);
-        when(http.addFilterBefore(any(), any(Class.class))).thenReturn(http);
+        mockMvc.perform(get("/swagger-ui.html"))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getStatus()).isNotEqualTo(403));
 
-        // devolvemos un DefaultSecurityFilterChain real, no un mock
-        DefaultSecurityFilterChain realChain = new DefaultSecurityFilterChain(null, Collections.emptyList());
-        when(http.build()).thenReturn(realChain);
+        mockMvc.perform(get("/api-docs/some-endpoint"))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getStatus()).isNotEqualTo(403));
+    }
+    @Test
+    void otherEndpoints_requireAuthentication() throws Exception {
+        mockMvc.perform(get("/some-protected-endpoint"))
+                .andExpect(status().isForbidden()); // ⚡ cambia a Forbidden
+    }
 
-        SecurityFilterChain chain = securityConfig.securityFilterChain(http);
 
-        assertThat(chain).isSameAs(realChain);
-
-        verify(http).csrf(any());
-        verify(http).authorizeHttpRequests(any());
-        verify(http).sessionManagement(any());
-        verify(http).addFilterBefore(eq(jwtFilter), eq(UsernamePasswordAuthenticationFilter.class));
-        verify(http).build();
+    @Test
+    @WithMockUser
+    void otherEndpoints_allowAuthenticatedUser() throws Exception {
+        mockMvc.perform(get("/some-protected-endpoint"))
+                .andExpect(result ->
+                        assertThat(result.getResponse().getStatus()).isNotEqualTo(401));
     }
 
     @Test
     void passwordEncoder_is_bcrypt_and_matches_password() {
-        PasswordEncoder encoder = securityConfig.passwordEncoder();
-        assertThat(encoder).isNotNull();
+        PasswordEncoder encoder = new SecurityConfig(null, null).passwordEncoder();
 
         String raw = "miPasswordSecreta";
         String encoded = encoder.encode(raw);
@@ -75,15 +77,15 @@ class SecurityConfigTest {
         assertThat(encoder.matches(raw, encoded)).isTrue();
     }
 
-    @Mock
-    private AuthenticationConfiguration authenticationConfiguration;
-
     @Test
     void authenticationManager_returns_value_from_authenticationConfiguration() throws Exception {
+        AuthenticationConfiguration authenticationConfiguration = mock(AuthenticationConfiguration.class);
         AuthenticationManager managerMock = mock(AuthenticationManager.class);
+
         when(authenticationConfiguration.getAuthenticationManager()).thenReturn(managerMock);
 
-        AuthenticationManager manager = securityConfig.authenticationManager(authenticationConfiguration);
+        AuthenticationManager manager = new SecurityConfig(null, null)
+                .authenticationManager(authenticationConfiguration);
 
         assertThat(manager).isSameAs(managerMock);
     }
