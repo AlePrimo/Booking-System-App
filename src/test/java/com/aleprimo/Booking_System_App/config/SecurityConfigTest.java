@@ -82,15 +82,7 @@ class SecurityConfigTest {
         assertThat(manager).isNotNull();
     }
 
-//    @Test
-//    void authenticationManager_returnsFromConfiguration() throws Exception {
-//        AuthenticationManager managerMock = mock(AuthenticationManager.class);
-//        when(authenticationConfiguration.getAuthenticationManager()).thenReturn(managerMock);
-//
-//        AuthenticationManager result = securityConfig.authenticationManager(authenticationConfiguration);
-//
-//        assertThat(result).isSameAs(managerMock);
-//    }
+
 
     // --- DUMMY CONTROLLER PARA LOS TESTS ---
     @RestController
