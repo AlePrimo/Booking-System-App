@@ -3,13 +3,17 @@ package com.aleprimo.Booking_System_App.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 
 
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 class JwtUtilTest {
 
@@ -44,6 +48,25 @@ class JwtUtilTest {
 
         // email distinto
         assertFalse(jwtUtil.validateToken(token, "other@example.com"));
+    }
+
+    @Test
+    void testValidateToken_expired_usingSpy() throws Exception {
+        String email = "test@example.com";
+        // generás un token válido con tu método existente
+        String token = jwtUtil.generateToken(email);
+
+        // spy sobre jwtUtil (si jwtUtil es @Autowired en tu test, no lo replico aquí)
+        JwtUtil spyJwt = spy(jwtUtil);
+
+        // forzamos que extractUsername devuelva el email correcto
+        doReturn(email).when(spyJwt).extractUsername(token);
+
+        // forzamos que isTokenExpired devuelva true (token vencido)
+        doReturn(true).when(spyJwt).isTokenExpired(token);
+
+        // ahora validateToken debe dar false (porque está vencido)
+        assertFalse(spyJwt.validateToken(token, email));
     }
 
     @Test
