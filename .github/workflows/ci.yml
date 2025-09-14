@@ -21,7 +21,7 @@ jobs:
 
       # Ejecuta tests y genera reporte JaCoCo
       - name: Run tests with JaCoCo
-        run: mvn clean verify jacoco:report -e -x
+        run: mvn clean verify jacoco:report -e -X
 
       # Generar badge de cobertura
       - name: Generate JaCoCo Badge
