@@ -20,7 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(
+        properties = {
+                "spring.autoconfigure.exclude=" +
+                        "org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration," +
+                        "org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyAutoConfiguration," +
+                        "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration"
+        }
+)
 @AutoConfigureMockMvc
 @Import(SecurityConfigTest.DummyController.class)
 class SecurityConfigTest {

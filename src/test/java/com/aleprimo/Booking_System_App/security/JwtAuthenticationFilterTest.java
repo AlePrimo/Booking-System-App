@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
@@ -20,76 +20,7 @@ import static org.mockito.Mockito.*;
 
 class JwtAuthenticationFilterTest {
 
-//    private JwtAuthenticationFilter filter;
-//    private JwtUtil jwtUtil;
-//    private CustomUserDetailsService userDetailsService;
-//
-//    @BeforeEach
-//    void setUp() {
-//        jwtUtil = mock(JwtUtil.class);
-//        userDetailsService = mock(CustomUserDetailsService.class);
-//        filter = new JwtAuthenticationFilter(jwtUtil, userDetailsService);
-//        SecurityContextHolder.clearContext();
-//    }
-//
-//    @Test
-//    void testDoFilterWithValidToken() throws ServletException, IOException {
-//        HttpServletRequest request = mock(HttpServletRequest.class);
-//        HttpServletResponse response = mock(HttpServletResponse.class);
-//        FilterChain chain = mock(FilterChain.class);
-//
-//        when(request.getHeader("Authorization")).thenReturn("Bearer valid.token");
-//        when(jwtUtil.extractUsername("valid.token")).thenReturn("user@example.com");
-//
-//
-//
-//        Set<Role> roles = new HashSet<>(Collections.singleton(Role.CUSTOMER));
-//
-//        User user = User.builder()
-//                .email("user@example.com")
-//                .password("pass")
-//                .roles(roles) // <- clave
-//                .build();
-//
-//        when(userDetailsService.loadUserByUsername("user@example.com"))
-//                .thenReturn(new CustomUserDetails(user));
-//
-//        when(jwtUtil.validateToken("valid.token", "user@example.com")).thenReturn(true);
-//
-//        filter.doFilterInternal(request, response, chain);
-//
-//
-//        verify(chain, times(1)).doFilter(request, response);
-//    }
-//
-//    @Test
-//    void testDoFilterWithInvalidToken() throws ServletException, IOException {
-//        HttpServletRequest request = mock(HttpServletRequest.class);
-//        HttpServletResponse response = mock(HttpServletResponse.class);
-//        FilterChain chain = mock(FilterChain.class);
-//
-//        when(request.getHeader("Authorization")).thenReturn("Bearer invalid.token");
-//        when(jwtUtil.extractUsername("invalid.token"))
-//                .thenThrow(new RuntimeException("bad token"));
-//
-//        filter.doFilterInternal(request, response, chain);
-//
-//        verify(chain, times(1)).doFilter(request, response);
-//    }
-//
-//    @Test
-//    void testDoFilterWithoutToken() throws ServletException, IOException {
-//        HttpServletRequest request = mock(HttpServletRequest.class);
-//        HttpServletResponse response = mock(HttpServletResponse.class);
-//        FilterChain chain = mock(FilterChain.class);
-//
-//        when(request.getHeader("Authorization")).thenReturn(null);
-//
-//        filter.doFilterInternal(request, response, chain);
-//
-//
-//        verify(chain, times(1)).doFilter(request, response);
-//    }
+
 
     private JwtAuthenticationFilter filter;
     private JwtUtil jwtUtil;
@@ -163,12 +94,12 @@ class JwtAuthenticationFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        // Header presente pero NO empieza con "Bearer "
+
         when(request.getHeader("Authorization")).thenReturn("Token xyz123");
 
         filter.doFilterInternal(request, response, chain);
 
-        // Se debe seguir la cadena sin intentar procesar JWT
+
         verify(chain, times(1)).doFilter(request, response);
         verifyNoInteractions(jwtUtil);
         verifyNoInteractions(userDetailsService);
@@ -183,7 +114,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer valid.token");
         when(jwtUtil.extractUsername("valid.token")).thenReturn("user@example.com");
 
-        // ya hay auth en el contexto
+
         SecurityContextHolder.getContext().setAuthentication(
                 new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                         "alreadyAuth", null, Collections.emptyList()
@@ -218,7 +149,7 @@ class JwtAuthenticationFilterTest {
 
         filter.doFilterInternal(request, response, chain);
 
-        // auth no se setea porque validateToken devuelve false
+
         assert (SecurityContextHolder.getContext().getAuthentication() == null);
         verify(chain, times(1)).doFilter(request, response);
     }
