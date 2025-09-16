@@ -111,7 +111,7 @@ class JwtUtilTest {
 
         String token = shortLivedJwtUtil.generateToken("user@example.com");
 
-       
+
         assertThrows(ExpiredJwtException.class, () -> shortLivedJwtUtil.extractAllClaims(token));
     }
 
