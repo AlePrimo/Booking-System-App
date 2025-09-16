@@ -28,7 +28,7 @@ class JwtUtilTest {
         jwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(jwtUtil, "secret",
                 "7LnkNHuqRh55wWY3hYDDLdirV//5jyqMsDAQZQo0NroS325C6ue+B+jC+pJJxKCYd/G2gfZyeKbe9w73ZtZW+Q==");
-        // 👉 tokens "largos" para los tests normales
+
         ReflectionTestUtils.setField(jwtUtil, "jwtExpirationMs", 3600000L); // 1 hora
     }
 
@@ -47,10 +47,10 @@ class JwtUtilTest {
         String email = "test@example.com";
         String token = jwtUtil.generateToken(email);
 
-        // válido
+
         assertTrue(jwtUtil.validateToken(token, email));
 
-        // email distinto
+
         assertFalse(jwtUtil.validateToken(token, "other@example.com"));
     }
 
@@ -58,12 +58,12 @@ class JwtUtilTest {
     void generateRefreshToken_producesValidToken_andClaimsAreCorrect() {
         JwtUtil jwtUtil = new JwtUtil();
 
-        // generar secret seguro base64 estándar
+
         byte[] random = new byte[64];
         new SecureRandom().nextBytes(random);
         String secret = Base64.getEncoder().encodeToString(random); // <--- aquí
 
-        // inyectar valores privados
+
         ReflectionTestUtils.setField(jwtUtil, "secret", secret);
         ReflectionTestUtils.setField(jwtUtil, "jwtExpirationMs", 1000L);
 
@@ -85,25 +85,25 @@ class JwtUtilTest {
     @Test
     void testValidateToken_expired_usingSpy() throws Exception {
         String email = "test@example.com";
-        // generás un token válido con tu método existente
+
         String token = jwtUtil.generateToken(email);
 
-        // spy sobre jwtUtil (si jwtUtil es @Autowired en tu test, no lo replico aquí)
+
         JwtUtil spyJwt = spy(jwtUtil);
 
-        // forzamos que extractUsername devuelva el email correcto
+
         doReturn(email).when(spyJwt).extractUsername(token);
 
-        // forzamos que isTokenExpired devuelva true (token vencido)
+
         doReturn(true).when(spyJwt).isTokenExpired(token);
 
-        // ahora validateToken debe dar false (porque está vencido)
+
         assertFalse(spyJwt.validateToken(token, email));
     }
 
     @Test
     void testExtractClaimExpirationAndIsExpired() {
-        // 👉 uso un JwtUtil con expiración corta
+
         JwtUtil shortLivedJwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(shortLivedJwtUtil, "secret",
                 "7LnkNHuqRh55wWY3hYDDLdirV//5jyqMsDAQZQo0NroS325C6ue+B+jC+pJJxKCYd/G2gfZyeKbe9w73ZtZW+Q==");
@@ -111,7 +111,7 @@ class JwtUtilTest {
 
         String token = shortLivedJwtUtil.generateToken("user@example.com");
 
-        // inmediatamente debe estar expirado
+       
         assertThrows(ExpiredJwtException.class, () -> shortLivedJwtUtil.extractAllClaims(token));
     }
 
