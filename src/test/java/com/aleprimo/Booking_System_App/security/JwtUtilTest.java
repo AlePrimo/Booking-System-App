@@ -1,6 +1,7 @@
 package com.aleprimo.Booking_System_App.security;
 
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 
 
@@ -9,8 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Date;
 
-
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -50,6 +54,34 @@ class JwtUtilTest {
         assertFalse(jwtUtil.validateToken(token, "other@example.com"));
     }
 
+    @Test
+    void generateRefreshToken_producesValidToken_andClaimsAreCorrect() {
+        JwtUtil jwtUtil = new JwtUtil();
+
+        // generar secret seguro base64 estándar
+        byte[] random = new byte[64];
+        new SecureRandom().nextBytes(random);
+        String secret = Base64.getEncoder().encodeToString(random); // <--- aquí
+
+        // inyectar valores privados
+        ReflectionTestUtils.setField(jwtUtil, "secret", secret);
+        ReflectionTestUtils.setField(jwtUtil, "jwtExpirationMs", 1000L);
+
+        String email = "user@example.com";
+        String token = jwtUtil.generateRefreshToken(email);
+
+        assertThat(token).isNotNull();
+
+        Claims claims = jwtUtil.extractAllClaims(token);
+
+        assertThat(claims.getSubject()).isEqualTo(email);
+
+        Date issuedAt = claims.getIssuedAt();
+        Date expiration = claims.getExpiration();
+        assertThat(issuedAt).isNotNull();
+        assertThat(expiration).isNotNull();
+        assertThat(expiration.after(issuedAt)).isTrue();
+    }
     @Test
     void testValidateToken_expired_usingSpy() throws Exception {
         String email = "test@example.com";

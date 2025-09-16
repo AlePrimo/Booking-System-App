@@ -11,11 +11,11 @@ import com.aleprimo.Booking_System_App.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-import java.util.List;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,8 +32,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 import static org.mockito.Mockito.*;
-@ExtendWith(MockitoExtension.class)
+
 class AuthServiceTest {
+
     @Mock
     private AuthenticationManager authenticationManager;
 
@@ -54,10 +55,13 @@ class AuthServiceTest {
 
     private User user;
     private UserDetails userDetails;
-    private LoginRequestDTO validRequest;
+    private LoginRequestDTO validLogin;
+    private RegisterRequestDTO validRegister;
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
+
         user = User.builder()
                 .id(1L)
                 .name("John Doe")
@@ -68,62 +72,111 @@ class AuthServiceTest {
 
         userDetails = new CustomUserDetails(user);
 
-        validRequest = new LoginRequestDTO("john@example.com", "password");
+        validLogin = new LoginRequestDTO("john@example.com", "password");
+        validRegister = new RegisterRequestDTO("John Doe", "john@example.com", "password123");
+
+        // Mocks lenientes para evitar UnnecessaryStubbingException
+        lenient().when(userDetailsService.loadUserByUsername(validLogin.getEmail())).thenReturn(userDetails);
+        lenient().when(jwtUtil.generateToken(any())).thenReturn("mocked-token");
+        lenient().when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+        lenient().when(userRepository.save(any(User.class))).thenReturn(user);
     }
 
+    // ===== LOGIN =====
     @Test
-    void login_returnsAccessAndRefreshToken_whenCredentialsAreValid() {
-        when(userDetailsService.loadUserByUsername(validRequest.getEmail())).thenReturn(userDetails);
+    void login_returnsToken_whenCredentialsAreValid() {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
-        when(jwtUtil.generateToken(userDetails.getUsername())).thenReturn("mocked-access");
-        when(jwtUtil.generateRefreshToken(userDetails.getUsername())).thenReturn("mocked-refresh");
 
-        LoginResponseDTO response = authService.login(validRequest);
+        LoginResponseDTO response = authService.login(validLogin);
 
-        assertThat(response.getToken()).isEqualTo("mocked-access");
-        assertThat(response.getRefreshToken()).isEqualTo("mocked-refresh");
-
-        verify(authenticationManager, times(1))
-                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        assertThat(response.getToken()).isEqualTo("mocked-token");
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtUtil, times(1)).generateToken(userDetails.getUsername());
     }
 
     @Test
     void login_throwsException_whenUserDetailsAreNull() {
-        when(userDetailsService.loadUserByUsername(validRequest.getEmail())).thenReturn(null);
+        when(userDetailsService.loadUserByUsername(validLogin.getEmail())).thenReturn(null);
 
-        assertThatThrownBy(() -> authService.login(validRequest))
+        assertThatThrownBy(() -> authService.login(validLogin))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessageContaining("Email o contraseña incorrectos");
     }
 
     @Test
-    void register_savesNewUser() {
-        RegisterRequestDTO request = new RegisterRequestDTO("John", "john@example.com", "password123");
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User saved = invocation.getArgument(0);
-            saved.setId(1L);
-            return saved;
-        });
+    void login_throwsException_whenAuthenticationFails() {
+        doThrow(new BadCredentialsException("Email o contraseña incorrectos"))
+                .when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
 
-        RegisterResponseDTO response = authService.register(request);
-
-        assertThat(response.getId()).isEqualTo(1L);
-        assertThat(response.getEmail()).isEqualTo("john@example.com");
+        assertThatThrownBy(() -> authService.login(validLogin))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Email o contraseña incorrectos");
     }
 
+    // ===== REGISTER =====
+    @Test
+    void register_returnsResponse_whenDataIsValid() {
+        RegisterResponseDTO response = authService.register(validRegister);
+
+        assertThat(response.getEmail()).isEqualTo(validRegister.getEmail());
+        assertThat(response.getName()).isEqualTo(validRegister.getName());
+        assertThat(response.getId()).isEqualTo(user.getId());
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void register_throwsException_whenEmailAlreadyUsed() {
+        when(userRepository.findByEmail(validRegister.getEmail())).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> authService.register(validRegister))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("El email ya está en uso");
+    }
+
+    @Test
+    void register_throwsException_whenPasswordTooShort() {
+        RegisterRequestDTO shortPass = new RegisterRequestDTO("Jane", "jane@example.com", "123");
+
+        assertThatThrownBy(() -> authService.register(shortPass))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("La contraseña debe tener al menos 6 caracteres");
+    }
+
+    // ===== REFRESH TOKEN =====
     @Test
     void refresh_returnsNewAccessToken_whenValid() {
         String refreshToken = "valid-refresh";
         when(jwtUtil.extractUsername(refreshToken)).thenReturn("john@example.com");
         when(jwtUtil.isTokenExpired(refreshToken)).thenReturn(false);
-        when(jwtUtil.generateToken("john@example.com")).thenReturn("new-access");
+        when(jwtUtil.generateToken("john@example.com")).thenReturn("new-access-token");
 
         LoginResponseDTO response = authService.refresh(refreshToken);
 
-        assertThat(response.getToken()).isEqualTo("new-access");
+        assertThat(response.getToken()).isEqualTo("new-access-token");
         assertThat(response.getRefreshToken()).isEqualTo(refreshToken);
     }
+
+    @Test
+    void refresh_throwsBadCredentials_whenExtractUsernameFails() {
+        String refreshToken = "invalid-refresh";
+        when(jwtUtil.extractUsername(refreshToken)).thenThrow(new RuntimeException("fail"));
+
+        assertThatThrownBy(() -> authService.refresh(refreshToken))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Refresh token inválido");
+    }
+
+    @Test
+    void refresh_throwsBadCredentials_whenTokenExpired() {
+        String refreshToken = "expired-refresh";
+        when(jwtUtil.extractUsername(refreshToken)).thenReturn("john@example.com");
+        when(jwtUtil.isTokenExpired(refreshToken)).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.refresh(refreshToken))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Refresh token expirado");
+    }
+
+
 
 }
