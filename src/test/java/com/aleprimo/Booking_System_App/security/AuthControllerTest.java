@@ -1,6 +1,8 @@
 package com.aleprimo.Booking_System_App.security;
 
 
+import com.aleprimo.Booking_System_App.dto.auth.RegisterRequestDTO;
+import com.aleprimo.Booking_System_App.dto.auth.RegisterResponseDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginRequestDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,12 +39,14 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtUtil jwtUtil;
+
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
+
     @Test
-    void login_returnsToken() throws Exception {
+    void login_returnsAccessAndRefreshToken() throws Exception {
         LoginRequestDTO request = new LoginRequestDTO("user@example.com", "pass");
-        LoginResponseDTO response = new LoginResponseDTO("jwt-token");
+        LoginResponseDTO response = new LoginResponseDTO("jwt-access", "jwt-refresh");
 
         when(authService.login(any(LoginRequestDTO.class))).thenReturn(response);
 
@@ -50,7 +54,39 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt-token"));
+                .andExpect(jsonPath("$.token").value("jwt-access"))
+                .andExpect(jsonPath("$.refreshToken").value("jwt-refresh"));
+    }
+
+    @Test
+    void register_returnsUserData() throws Exception {
+        RegisterRequestDTO request = new RegisterRequestDTO("John", "john@example.com", "password123");
+        RegisterResponseDTO response = new RegisterResponseDTO(1L, "John", "john@example.com");
+
+        when(authService.register(any(RegisterRequestDTO.class))).thenReturn(response);
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("John"))
+                .andExpect(jsonPath("$.email").value("john@example.com"));
+    }
+
+    @Test
+    void refresh_returnsNewAccessToken() throws Exception {
+        String refreshToken = "jwt-refresh";
+        LoginResponseDTO response = new LoginResponseDTO("jwt-new-access", refreshToken);
+
+        when(authService.refresh(any(String.class))).thenReturn(response);
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(refreshToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("jwt-new-access"))
+                .andExpect(jsonPath("$.refreshToken").value("jwt-refresh"));
     }
 
 }
