@@ -37,6 +37,15 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String generateRefreshToken(String email) {
+        // Refresh dura más (ej: 7 días)
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + (jwtExpirationMs * 7)))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

@@ -1,16 +1,23 @@
 package com.aleprimo.Booking_System_App.security;
 
 
+import com.aleprimo.Booking_System_App.dto.auth.RegisterRequestDTO;
+import com.aleprimo.Booking_System_App.dto.auth.RegisterResponseDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginRequestDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginResponseDTO;
+import com.aleprimo.Booking_System_App.entity.User;
+import com.aleprimo.Booking_System_App.entity.enums.Role;
+import com.aleprimo.Booking_System_App.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +27,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getEmail());
@@ -35,7 +43,47 @@ public class AuthService {
                 )
         );
 
-        String token = jwtUtil.generateToken(userDetails.getUsername());
-        return new LoginResponseDTO(token);
+        String accessToken = jwtUtil.generateToken(userDetails.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+
+        return new LoginResponseDTO(accessToken, refreshToken);
     }
+
+    public RegisterResponseDTO register(RegisterRequestDTO dto) {
+        userRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
+            throw new IllegalArgumentException("El email ya está en uso");
+        });
+
+        if (dto.getPassword().length() < 6) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
+        }
+
+        User user = User.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .roles(Set.of(Role.CUSTOMER))
+                .build();
+
+        User saved = userRepository.save(user);
+
+        return new RegisterResponseDTO(saved.getId(), saved.getName(), saved.getEmail());
+    }
+
+    public LoginResponseDTO refresh(String refreshToken) {
+        String username;
+        try {
+            username = jwtUtil.extractUsername(refreshToken);
+        } catch (Exception e) {
+            throw new BadCredentialsException("Refresh token inválido");
+        }
+
+        if (jwtUtil.isTokenExpired(refreshToken)) {
+            throw new BadCredentialsException("Refresh token expirado");
+        }
+
+        String newAccessToken = jwtUtil.generateToken(username);
+        return new LoginResponseDTO(newAccessToken, refreshToken);
+    }
+
 }
