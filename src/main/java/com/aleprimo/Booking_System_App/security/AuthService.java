@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,23 +21,21 @@ public class AuthService {
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    public LoginResponseDTO login(LoginRequestDTO request) {
-        try {
-            // Autenticación
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
+    public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getEmail());
 
-            // Generar token JWT
-            final var userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-            final String token = jwtUtil.generateToken(userDetails.getUsername());
-
-            return LoginResponseDTO.builder()
-                    .token(token)
-                    .build();
-
-        } catch (AuthenticationException e) {
+        if (userDetails == null) {
             throw new BadCredentialsException("Email o contraseña incorrectos");
         }
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequestDTO.getEmail(),
+                        loginRequestDTO.getPassword()
+                )
+        );
+
+        String token = jwtUtil.generateToken(userDetails.getUsername());
+        return new LoginResponseDTO(token);
     }
 }
