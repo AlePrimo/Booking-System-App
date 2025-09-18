@@ -67,7 +67,7 @@ class AuthServiceTest {
                 .name("John Doe")
                 .email("john@example.com")
                 .password("encodedPassword")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
 
         userDetails = new CustomUserDetails(user);

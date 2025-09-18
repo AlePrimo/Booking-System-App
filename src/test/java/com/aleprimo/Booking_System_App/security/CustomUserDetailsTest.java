@@ -16,7 +16,7 @@ class CustomUserDetailsTest {
         User user = User.builder()
                 .email("test@example.com")
                 .password("pass")
-                .roles(Set.of(Role.ADMIN, Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_ADMIN, Role.ROLE_CUSTOMER))
                 .build();
 
         CustomUserDetails details = new CustomUserDetails(user);

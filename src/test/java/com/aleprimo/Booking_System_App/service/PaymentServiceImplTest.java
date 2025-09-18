@@ -65,12 +65,12 @@ class PaymentServiceImplTest {
                 .email("pepe@mail")
                 .name("pepe")
                 .password("pepe1234")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
         userService.createUser(customer);
 
         provider = User.builder()
-                .roles(Set.of(Role.PROVIDER))
+                .roles(Set.of(Role.ROLE_PROVIDER))
                 .password("provider1234")
                 .email("provider@mail")
                 .name("vandalay")

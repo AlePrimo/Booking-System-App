@@ -43,7 +43,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer valid.token");
         when(jwtUtil.extractUsername("valid.token")).thenReturn("user@example.com");
 
-        Set<Role> roles = new HashSet<>(Collections.singleton(Role.CUSTOMER));
+        Set<Role> roles = new HashSet<>(Collections.singleton(Role.ROLE_CUSTOMER));
         User user = User.builder()
                 .email("user@example.com")
                 .password("pass")
@@ -135,7 +135,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer some.token");
         when(jwtUtil.extractUsername("some.token")).thenReturn("user@example.com");
 
-        Set<Role> roles = new HashSet<>(Collections.singleton(Role.CUSTOMER));
+        Set<Role> roles = new HashSet<>(Collections.singleton(Role.ROLE_CUSTOMER));
         User user = User.builder()
                 .email("user@example.com")
                 .password("pass")

@@ -44,7 +44,7 @@ class BookingRepositoryTest {
                 .name("VANDALAY")
                 .email("vandalay@mail")
                 .password("vandalay124")
-                .roles(Set.of(Role.PROVIDER))
+                .roles(Set.of(Role.ROLE_PROVIDER))
                 .build();
         userRepository.save(provider);
 
@@ -52,7 +52,7 @@ class BookingRepositoryTest {
                 .name("Juan")
                 .email("juan@mail.com")
                 .password("1234")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
         userRepository.save(customer);
 

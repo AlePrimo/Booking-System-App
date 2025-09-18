@@ -68,7 +68,7 @@ class NotificationControllerTest {
                 .name("Juan")
                 .email("juan@mail.com")
                 .password("1234")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
 
         notification = Notification.builder()

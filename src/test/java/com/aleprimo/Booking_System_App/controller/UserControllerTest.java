@@ -64,14 +64,14 @@ class UserControllerTest {
                 .name("Juan Pérez")
                 .email("juan@mail.com")
                 .password("123456")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
 
         userRequestDTO = UserRequestDTO.builder()
                 .name("Juan Pérez")
                 .email("juan@mail.com")
                 .password("123456")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
     }
 
@@ -81,7 +81,7 @@ class UserControllerTest {
                 .id(1L)
                 .name("Juan Perez")
                 .email("juan@mail.com")
-                .roles(Set.of(Role.CUSTOMER))
+                .roles(Set.of(Role.ROLE_CUSTOMER))
                 .build();
 
         when(userMapper.toEntity(any(UserRequestDTO.class))).thenReturn(user);
@@ -106,7 +106,7 @@ class UserControllerTest {
                         .id(1L)
                         .name("Juan Perez")
                         .email("juan@mail.com")
-                        .roles(Set.of(Role.CUSTOMER))
+                        .roles(Set.of(Role.ROLE_CUSTOMER))
                         .build()
         );
 
@@ -135,7 +135,7 @@ class UserControllerTest {
                         .id(1L)
                         .name("Juan Perez")
                         .email("juan@mail.com")
-                        .roles(Set.of(Role.CUSTOMER))
+                        .roles(Set.of(Role.ROLE_CUSTOMER))
                         .build()
         );
 
@@ -154,7 +154,7 @@ class UserControllerTest {
                         .id(1L)
                         .name("Juan Perez")
                         .email("juan@mail.com")
-                        .roles(Set.of(Role.CUSTOMER))
+                        .roles(Set.of(Role.ROLE_CUSTOMER))
                         .build()
         );
 
