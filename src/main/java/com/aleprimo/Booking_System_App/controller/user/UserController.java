@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,7 +27,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Crear un nuevo usuario",
             description = "Crea un usuario con nombre, email, contraseña y roles",
@@ -36,9 +37,10 @@ public class UserController {
             })
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO dto) {
         User user = userService.createUser(userMapper.toEntity(dto));
-        return ResponseEntity.ok(userMapper.toDTO(user));
+        return ResponseEntity.status(201).body(userMapper.toDTO(user));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar un usuario existente",
             description = "Actualiza los datos de un usuario por su ID",
@@ -52,6 +54,7 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDTO(user));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un usuario",
             description = "Elimina un usuario por su ID",
@@ -63,7 +66,7 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     @GetMapping("/{id}")
     @Operation(summary = "Obtener un usuario por ID",
             responses = {
@@ -76,6 +79,7 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @PreAuthorize("hasRole('ADMIN')")
 
     @GetMapping
     @Operation(summary = "Listar todos los usuarios con paginación",
