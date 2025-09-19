@@ -1,7 +1,7 @@
-package com.aleprimo.Booking_System_App.controller;
+package com.aleprimo.Booking_System_App.controller.authorization;
 
 
-import com.aleprimo.Booking_System_App.dto.RefreshTokenRequestDTO;
+import com.aleprimo.Booking_System_App.dto.refreshToken.RefreshTokenRequestDTO;
 import com.aleprimo.Booking_System_App.dto.auth.RegisterRequestDTO;
 import com.aleprimo.Booking_System_App.dto.auth.RegisterResponseDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginRequestDTO;

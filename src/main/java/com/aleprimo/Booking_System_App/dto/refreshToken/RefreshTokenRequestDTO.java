@@ -1,4 +1,4 @@
-package com.aleprimo.Booking_System_App.dto;
+package com.aleprimo.Booking_System_App.dto.refreshToken;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
