@@ -9,10 +9,10 @@ INSERT INTO users (name, email, password) VALUES
 
 -- Roles de usuarios
 INSERT INTO user_roles (user_id, role) VALUES
-(1, 'ADMIN'),
-(2, 'PROVIDER'),
-(3, 'CUSTOMER'),
-(4, 'CUSTOMER');
+(1, 'ROLE_ADMIN'),
+(2, 'ROLE_PROVIDER'),
+(3, 'ROLE_CUSTOMER'),
+(4, 'ROLE_CUSTOMER');
 
 -- ==========================
 -- Servicios (Offerings)

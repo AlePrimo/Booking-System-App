@@ -37,7 +37,7 @@ public class UserController {
             })
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO dto) {
         User user = userService.createUser(userMapper.toEntity(dto));
-        return ResponseEntity.status(201).body(userMapper.toDTO(user));
+        return ResponseEntity.ok(userMapper.toDTO(user));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

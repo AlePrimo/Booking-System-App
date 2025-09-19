@@ -5,6 +5,7 @@ import com.aleprimo.Booking_System_App.entity.Booking;
 import com.aleprimo.Booking_System_App.entity.Offering;
 import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.entity.enums.BookingStatus;
+
 import com.aleprimo.Booking_System_App.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +39,7 @@ class BookingRepositoryTest {
     private Offering offering;
     private Booking booking;
     private User provider;
+
     @BeforeEach
     void setUp() {
 
