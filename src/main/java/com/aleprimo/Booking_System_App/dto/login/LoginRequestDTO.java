@@ -1,5 +1,6 @@
 package com.aleprimo.Booking_System_App.dto.login;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -15,10 +16,12 @@ import lombok.Setter;
 @Builder
 public class LoginRequestDTO {
 
-    @Email
-    @NotBlank
+    @Schema(description = "Correo electrónico del usuario", example = "juan.perez@mail.com")
+    @Email(message = "Debe ser un email válido")
+    @NotBlank(message = "El email es obligatorio")
     private String email;
 
-    @NotBlank
+    @Schema(description = "Contraseña de acceso", example = "password123")
+    @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 }

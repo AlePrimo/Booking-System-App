@@ -1,10 +1,12 @@
-package com.aleprimo.Booking_System_App.security;
+package com.aleprimo.Booking_System_App.controller;
 
 
+import com.aleprimo.Booking_System_App.dto.RefreshTokenRequestDTO;
 import com.aleprimo.Booking_System_App.dto.auth.RegisterRequestDTO;
 import com.aleprimo.Booking_System_App.dto.auth.RegisterResponseDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginRequestDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginResponseDTO;
+import com.aleprimo.Booking_System_App.security.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -49,8 +51,8 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Refresh token inválido o expirado")
     })
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponseDTO> refresh(@RequestBody String refreshToken) {
-        return ResponseEntity.ok(authService.refresh(refreshToken));
+    public ResponseEntity<LoginResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
+        return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
     }
 
 
