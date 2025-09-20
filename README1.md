@@ -2,7 +2,7 @@
 
 Un sistema de reservas completo desarrollado con **Spring Boot**, que permite gestionar usuarios, servicios (offerings), reservas (bookings), pagos y notificaciones.
 
-El proyecto incluye autenticación, paginación personalizada, manejo de excepciones centralizado y documentación con **Swagger UI**.
+El proyecto incluye **autenticación con JWT**, **paginación personalizada**, **manejo de excepciones centralizado** y **documentación con Swagger UI**.
 
 ---
 
@@ -12,7 +12,7 @@ El proyecto incluye autenticación, paginación personalizada, manejo de excepci
 - **Spring Boot 3**
   - Spring Web
   - Spring Data JPA
-  - Spring Security
+  - Spring Security (JWT)
   - Spring Validation
 - **Hibernate (ORM)**
 - **PostgreSQL** (Base de datos)
@@ -65,6 +65,7 @@ Tests → Cobertura para Repository, Service y Controller
 ✔️ Creación y seguimiento de **Reservas (Bookings)**  
 ✔️ Registro de **Pagos (Payments)** asociados a reservas  
 ✔️ Envío y gestión de **Notificaciones (Email / SMS)**  
+✔️ **Autenticación con JWT** (login, register, refresh)  
 ✔️ **Paginación personalizada** con `PageResponse<T>`  
 ✔️ **Swagger UI** para probar la API de manera interactiva  
 ✔️ **Tests completos** de todas las capas  
@@ -72,6 +73,11 @@ Tests → Cobertura para Repository, Service y Controller
 ---
 
 ## 📖 Endpoints principales
+
+### 🔹 Autenticación (`/auth`)
+- `POST /auth/login` → Iniciar sesión (JWT access + refresh token)  
+- `POST /auth/register` → Registrar nuevo usuario (rol por defecto: `CUSTOMER`)  
+- `POST /auth/refresh` → Obtener nuevo `access token` a partir del `refresh token`  
 
 ### 🔹 Usuarios (`/api/users`)
 - `GET /api/users` → Listar usuarios con paginación  
@@ -101,6 +107,11 @@ Tests → Cobertura para Repository, Service y Controller
 
 ## 🛠️ Configuración
 
+### Requisitos previos
+- **Java 21**
+- **Maven 3+**
+- **PostgreSQL 14+**
+
 ### Clonar el repositorio
 
 ```bash
@@ -112,7 +123,7 @@ cd Booking-System-App
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/booking_system
-spring.datasource.username=root
+spring.datasource.username=postgres
 spring.datasource.password=tu_clave
 spring.jpa.hibernate.ddl-auto=update
 ```
@@ -135,6 +146,62 @@ Ahí vas a poder probar todos los endpoints de manera interactiva.
 
 ---
 
+## 🔐 Seguridad y roles
+
+- Todos los endpoints requieren **JWT válido**, excepto:
+  - `/auth/**`
+  - `/swagger-ui/**`
+  - `/v3/api-docs/**`
+
+- Roles disponibles:
+  - `ROLE_ADMIN`
+  - `ROLE_CUSTOMER`
+
+📌 Al registrarse vía `/auth/register`, se asigna automáticamente el rol `ROLE_CUSTOMER`.  
+
+---
+
+## 🔑 Ejemplos de autenticación
+
+### Login
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mail.com",
+  "password": "password123"
+}
+```
+
+**Respuesta:**
+```json
+{
+  "token": "jwt-access-token",
+  "refreshToken": "jwt-refresh-token"
+}
+```
+
+### Refresh Token
+```http
+POST /auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "jwt-refresh-token"
+}
+```
+
+**Respuesta:**
+```json
+{
+  "token": "jwt-new-access-token",
+  "refreshToken": "jwt-refresh-token"
+}
+```
+
+---
+
 ## ✅ Testing
 
 El proyecto cuenta con **tests unitarios e integración** para todas las capas:
@@ -142,25 +209,21 @@ El proyecto cuenta con **tests unitarios e integración** para todas las capas:
 - `RepositoryTest` → Pruebas de consultas a la BD  
 - `ServiceImplTest` → Pruebas de la lógica de negocio con Mockito  
 - `ControllerTest` → Pruebas de endpoints con MockMvc y @WebMvcTest  
+- `GlobalExceptionHandlerTest` → Cobertura total de manejo de errores  
 
 Ejecutar los tests:
 
 ```bash
-mvn test
+mvn clean test
 ```
 
-
-
+---
 
 ## 📊 Badges
 
 ![Build](https://img.shields.io/github/actions/workflow/status/AlePrimo/Booking-System-App/ci.yml?branch=main&label=Build&logo=github&color=blue)
 [![Coverage](https://raw.githubusercontent.com/AlePrimo/Booking-System-App/main/.github/badges/jacoco.svg)](https://aleprimo.github.io/Booking-System-App/jacoco/index.html)
 ![Branch](https://img.shields.io/badge/Branch-main-brightgreen?logo=git)
-
-
-
-
 
 ---
 
@@ -190,5 +253,3 @@ mvn test
 **Alejandro Primo**  
 📌 Desarrollador Java Backend  
 🔗 [LinkedIn](https://linkedin.com)
-
----
