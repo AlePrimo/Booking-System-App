@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -6,6 +5,8 @@ import { useAuth } from "../context/AuthContext";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+
+  const hasRole = (role) => user?.roles?.includes(role);
 
   return (
     <nav className="bg-white shadow-md">
@@ -24,14 +25,14 @@ export default function Navbar() {
             </>
           )}
 
-          {user?.role === "ROLE_USER" && (
+          {hasRole("ROLE_USER") && (
             <>
               <Link to="/reservas" className="hover:text-indigo-600">Reservas</Link>
               <Link to="/notificaciones" className="hover:text-indigo-600">Notificaciones</Link>
             </>
           )}
 
-          {user?.role === "ROLE_ADMIN" && (
+          {hasRole("ROLE_ADMIN") && (
             <>
               <Link to="/ofertas" className="hover:text-indigo-600">Ofertas</Link>
               <Link to="/usuarios" className="hover:text-indigo-600">Usuarios</Link>
@@ -67,14 +68,14 @@ export default function Navbar() {
             </>
           )}
 
-          {user?.role === "ROLE_USER" && (
+          {hasRole("ROLE_USER") && (
             <>
               <Link to="/reservas" className="block hover:text-indigo-600">Reservas</Link>
               <Link to="/notificaciones" className="block hover:text-indigo-600">Notificaciones</Link>
             </>
           )}
 
-          {user?.role === "ROLE_ADMIN" && (
+          {hasRole("ROLE_ADMIN") && (
             <>
               <Link to="/ofertas" className="block hover:text-indigo-600">Ofertas</Link>
               <Link to="/usuarios" className="block hover:text-indigo-600">Usuarios</Link>
