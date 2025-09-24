@@ -19,6 +19,6 @@ public class LoginResponseDTO {
     @Schema(description = "Refresh token para renovar el access token", example = "eyJhbGciOiJIUzI1NiIsInR...")
     private String refreshToken;
     @Schema(description = "Rol del usuario autenticado", example = "ROLE_CUSTOMER")
-    private Role role;   // 👈 nuevo campo
+    private Role role;
 
 }

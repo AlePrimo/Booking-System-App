@@ -83,8 +83,12 @@ public class AuthService {
 
     public LoginResponseDTO refresh(String refreshToken) {
         String username;
+       User user;
         try {
             username = jwtUtil.extractUsername(refreshToken);
+            user = userRepository.findByEmail(username).get();
+
+
         } catch (Exception e) {
             throw new BadCredentialsException("Refresh token inválido");
         }
@@ -95,7 +99,7 @@ public class AuthService {
 
         String newAccessToken = jwtUtil.generateToken(username);
 
-        return new LoginResponseDTO(newAccessToken, refreshToken);
+        return new LoginResponseDTO(newAccessToken, refreshToken, user.getRole());
     }
 
 }
