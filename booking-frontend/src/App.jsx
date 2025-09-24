@@ -9,10 +9,12 @@ import Payments from "./pages/Payments";
 import Notifications from "./pages/Notifications";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import DashboardAdmin from "./pages/DashboardAdmin";
-import Unauthorized from "./pages/Unauthorized";
 
+import DashboardAdmin from "./pages/DashboardAdmin";
+import DashboardCustomer from "./pages/DashboardCustomer";
+import DashboardProvider from "./pages/DashboardProvider";
+
+import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -31,15 +33,6 @@ function App() {
 
           {/* Dashboards */}
           <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["ROLE_USER"]}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
             path="/dashboard-admin"
             element={
               <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
@@ -48,11 +41,29 @@ function App() {
             }
           />
 
-          {/* Rutas privadas USER */}
+          <Route
+            path="/dashboard-customer"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
+                <DashboardCustomer />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard-provider"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_PROVIDER"]}>
+                <DashboardProvider />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Rutas privadas CUSTOMER */}
           <Route
             path="/reservas"
             element={
-              <ProtectedRoute allowedRoles={["ROLE_USER"]}>
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
                 <Bookings />
               </ProtectedRoute>
             }
@@ -61,7 +72,7 @@ function App() {
           <Route
             path="/notificaciones"
             element={
-              <ProtectedRoute allowedRoles={["ROLE_USER"]}>
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
                 <Notifications />
               </ProtectedRoute>
             }
@@ -86,11 +97,11 @@ function App() {
             }
           />
 
-          {/* Compartido (ejemplo) */}
+          {/* Rutas privadas compartidas */}
           <Route
             path="/payments"
             element={
-              <ProtectedRoute allowedRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER", "ROLE_ADMIN", "ROLE_PROVIDER"]}>
                 <Payments />
               </ProtectedRoute>
             }
@@ -99,7 +110,7 @@ function App() {
           {/* Unauthorized */}
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Fallback: cualquier ruta inválida redirige a Home */}
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

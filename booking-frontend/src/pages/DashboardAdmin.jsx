@@ -1,4 +1,3 @@
-// src/pages/DashboardAdmin.jsx
 export default function DashboardAdmin() {
   return (
     <div className="p-6">
