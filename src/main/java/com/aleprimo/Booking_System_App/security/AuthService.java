@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +31,6 @@ public class AuthService {
     private final UserRepository userRepository;
 
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getEmail());
-
-        if (userDetails == null) {
-            throw new BadCredentialsException("Email o contraseña incorrectos");
-        }
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -43,10 +39,25 @@ public class AuthService {
                 )
         );
 
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getEmail());
+        if (userDetails == null) {
+            throw new BadCredentialsException("Email o contraseña incorrectos");
+        }
+
+
         String accessToken = jwtUtil.generateToken(userDetails.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
 
-        return new LoginResponseDTO(accessToken, refreshToken);
+
+        User user = userRepository.findByEmail(loginRequestDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+
+        return LoginResponseDTO.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .role(user.getRole())
+                .build();
     }
 
     public RegisterResponseDTO register(RegisterRequestDTO dto) {
@@ -62,7 +73,7 @@ public class AuthService {
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(dto.getRole())
                 .build();
 
         User saved = userRepository.save(user);
@@ -83,6 +94,7 @@ public class AuthService {
         }
 
         String newAccessToken = jwtUtil.generateToken(username);
+
         return new LoginResponseDTO(newAccessToken, refreshToken);
     }
 

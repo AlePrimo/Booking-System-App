@@ -1,5 +1,6 @@
 package com.aleprimo.Booking_System_App.dto.auth;
 
+import com.aleprimo.Booking_System_App.entity.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -26,4 +27,8 @@ public class RegisterRequestDTO {
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
+
+    @Schema(description = "Rol del usuario autenticado", example = "ROLE_CUSTOMER")
+    private Role role;
+
 }

@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axiosClient"; // cliente axios centralizado
+import api from "../api/axiosClient";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // 👉 login con email y password
       const res = await api.post("/auth/login", { email, password });
 
       // Guardar tokens
@@ -20,23 +22,22 @@ export default function Login() {
       if (res.data.refreshToken) {
         localStorage.setItem("refreshToken", res.data.refreshToken);
       }
-      if (res.data.role) {
-        localStorage.setItem("role", res.data.role);
-      }
 
-      // 👉 Redirigir según rol
-      switch (res.data.role) {
-        case "ROLE_ADMIN":
-          navigate("/dashboard-admin");
-          break;
-        case "ROLE_CUSTOMER":
-          navigate("/dashboard-customer");
-          break;
-        case "ROLE_PROVIDER":
-          navigate("/dashboard-provider");
-          break;
-        default:
-          navigate("/unauthorized");
+      // Guardar usuario con rol
+      const userData = {
+        email: res.data.email,
+        role: res.data.role, // debe venir del backend: ROLE_ADMIN / ROLE_CUSTOMER / ROLE_PROVIDER
+      };
+
+      login(userData);
+
+      // Redirigir según rol
+      if (userData.role === "ROLE_ADMIN") {
+        navigate("/dashboard-admin");
+      } else if (userData.role === "ROLE_PROVIDER") {
+        navigate("/dashboard-provider");
+      } else {
+        navigate("/dashboard-customer");
       }
     } catch (err) {
       console.error("Error en login:", err);
@@ -45,27 +46,26 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4">Iniciar Sesión</h2>
-      <form onSubmit={handleLogin} className="space-y-4">
+    <div className="p-6 max-w-sm mx-auto bg-white shadow rounded">
+      <h2 className="text-lg font-bold mb-4">Iniciar Sesión</h2>
+      <form onSubmit={handleLogin} className="flex flex-col gap-3">
         <input
           type="email"
           placeholder="Email"
+          className="border p-2 rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          required
         />
         <input
           type="password"
           placeholder="Contraseña"
+          className="border p-2 rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          required
         />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
+        <button type="submit" className="bg-blue-600 text-white py-2 rounded">
           Ingresar
         </button>
       </form>
