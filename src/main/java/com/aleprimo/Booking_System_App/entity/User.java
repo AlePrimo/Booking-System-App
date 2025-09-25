@@ -34,9 +34,9 @@ public class User {
     private String password;
 
 
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
+
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
+
     @Column(name = "role", nullable = false)
     private Role role;
 }

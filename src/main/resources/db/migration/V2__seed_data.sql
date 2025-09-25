@@ -1,18 +1,13 @@
 -- ==========================
 -- Usuarios iniciales
 -- ==========================
-INSERT INTO users (name, email, password) VALUES
-('Admin User', 'admin@booking.com', 'admin123'), -- id = 1
-('Maria Lopez', 'maria@provider.com', 'provider123'), -- id = 2
-('Juan Perez', 'juan@customer.com', 'customer123'), -- id = 3
-('Ana Torres', 'ana@customer.com', 'customer456'); -- id = 4
+INSERT INTO users (name, email, password, role) VALUES
+('Admin User', 'admin@booking.com', 'admin123', 'ROLE_ADMIN'),       -- id = 1
+('Maria Lopez', 'maria@provider.com', 'provider123', 'ROLE_PROVIDER'), -- id = 2
+('Juan Perez', 'juan@customer.com', 'customer123', 'ROLE_CUSTOMER'),   -- id = 3
+('Ana Torres', 'ana@customer.com', 'customer456', 'ROLE_CUSTOMER');    -- id = 4
 
--- Roles de usuarios
-INSERT INTO user_roles (user_id, role) VALUES
-(1, 'ROLE_ADMIN'),
-(2, 'ROLE_PROVIDER'),
-(3, 'ROLE_CUSTOMER'),
-(4, 'ROLE_CUSTOMER');
+
 
 -- ==========================
 -- Servicios (Offerings)
