@@ -78,7 +78,7 @@ public class AuthService {
 
         User saved = userRepository.save(user);
 
-        return new RegisterResponseDTO(saved.getId(), saved.getName(), saved.getEmail());
+        return new RegisterResponseDTO(saved.getId(), saved.getName(), saved.getEmail(),saved.getRole());
     }
 
     public LoginResponseDTO refresh(String refreshToken) {

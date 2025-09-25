@@ -17,6 +17,7 @@ public class RegisterResponseDTO {
     private String name;
     @Schema(description = "Correo electronico del usuario", example = "juanperez@mail.com")
     private String email;
-
+    @Schema(description = "Rol del usuario autenticado", example = "ROLE_CUSTOMER")
+    private Role role;
 
 }

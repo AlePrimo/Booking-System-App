@@ -73,18 +73,18 @@ class AuthControllerTest {
                 "password123",
                 Role.ROLE_CUSTOMER
         );
-        RegisterResponseDTO response = new RegisterResponseDTO(1L, "John", "john@example.com");
+        RegisterResponseDTO response = new RegisterResponseDTO(1L, "John", "john@example.com",Role.ROLE_CUSTOMER);
 
         when(authService.register(any(RegisterRequestDTO.class))).thenReturn(response);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-               
+
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("John"))
-
+                .andExpect(jsonPath("$.role").value("ROLE_CUSTOMER"))
                 .andExpect(jsonPath("$.email").value("john@example.com"));
     }
     @Test
