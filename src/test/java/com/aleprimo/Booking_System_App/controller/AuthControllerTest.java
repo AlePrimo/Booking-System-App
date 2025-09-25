@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import org.springframework.context.annotation.Import;
@@ -64,7 +65,12 @@ class AuthControllerTest {
 
     @Test
     void register_returnsUserData() throws Exception {
-        RegisterRequestDTO request = new RegisterRequestDTO("John", "john@example.com", "password123", Role.ROLE_CUSTOMER);
+        RegisterRequestDTO request = new RegisterRequestDTO(
+                "John",
+                "john@example.com",
+                "password123",
+                Role.ROLE_CUSTOMER
+        );
         RegisterResponseDTO response = new RegisterResponseDTO(1L, "John", "john@example.com");
 
         when(authService.register(any(RegisterRequestDTO.class))).thenReturn(response);
@@ -72,12 +78,11 @@ class AuthControllerTest {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isCreated()) // ✅ debería dar 201 ahora
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("John"))
                 .andExpect(jsonPath("$.email").value("john@example.com"));
     }
-
     @Test
     void refresh_returnsNewAccessToken() throws Exception {
         String refreshToken = "jwt-refresh";

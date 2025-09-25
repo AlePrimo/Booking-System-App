@@ -1,5 +1,6 @@
 package com.aleprimo.Booking_System_App.dto.auth;
 
+import com.aleprimo.Booking_System_App.entity.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -16,4 +17,6 @@ public class RegisterResponseDTO {
     private String name;
     @Schema(description = "Correo electronico del usuario", example = "juanperez@mail.com")
     private String email;
+
+
 }
