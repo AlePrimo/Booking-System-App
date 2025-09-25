@@ -5,7 +5,7 @@ import com.aleprimo.Booking_System_App.entity.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.Set;
+
 
 @Data
 @NoArgsConstructor
@@ -21,6 +21,6 @@ public class UserResponseDTO {
     @Schema(description = "Correo electrónico del usuario", example = "juan.perez@mail.com")
     private String email;
 
-    @Schema(description = "Conjunto de roles asignados al usuario")
-    private Set<Role> roles;
+    @Schema(description = "Rol asignado al usuario")
+    private Role role;
 }

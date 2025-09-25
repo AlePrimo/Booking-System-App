@@ -49,7 +49,7 @@ class OfferingServiceImplTest {
                 .name("VANDALAY")
                 .email("vandalay@mail")
                 .password("vandalay124")
-                .roles(Set.of(Role.ROLE_PROVIDER))
+                .role(Role.ROLE_PROVIDER)
                 .build();
 
         offering = Offering.builder()

@@ -38,7 +38,7 @@ class NotificationRepositoryTest {
                 .name("Juan")
                 .email("juan@mail.com")
                 .password("1234")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
         recipient = userRepository.save(recipient);
     }

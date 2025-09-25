@@ -41,7 +41,7 @@ class UserServiceImplTest {
                 .name("Juan Pérez")
                 .email("juan@mail.com")
                 .password("123456")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role((Role.ROLE_CUSTOMER))
                 .build();
     }
 

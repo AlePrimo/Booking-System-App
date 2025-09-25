@@ -18,7 +18,7 @@ public class UserMapper {
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
-                .roles(dto.getRoles())
+                .role(dto.getRole())
                 .build();
     }
 
@@ -31,7 +31,7 @@ public class UserMapper {
                 .id(entity.getId())
                 .name(entity.getName())
                 .email(entity.getEmail())
-                .roles(entity.getRoles())
+                .role(entity.getRole())
                 .build();
     }
 }

@@ -23,7 +23,7 @@ class UserMapperTest {
                 .name("Alejandro")
                 .email("ale@example.com")
                 .password("securePass")
-                .roles(Set.of(Role.ROLE_CUSTOMER, Role.ROLE_ADMIN))
+                .role( Role.ROLE_CUSTOMER)
                 .build();
 
         // Act
@@ -34,8 +34,8 @@ class UserMapperTest {
         assertEquals("Alejandro", entity.getName());
         assertEquals("ale@example.com", entity.getEmail());
         assertEquals("securePass", entity.getPassword());
-        assertTrue(entity.getRoles().contains(Role.ROLE_CUSTOMER));
-        assertTrue(entity.getRoles().contains(Role.ROLE_ADMIN));
+        assertEquals( Role.ROLE_CUSTOMER,entity.getRole());
+
     }
 
     @Test
@@ -46,7 +46,7 @@ class UserMapperTest {
                 .name("Primo")
                 .email("primo@example.com")
                 .password("hiddenPass")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
 
         // Act
@@ -57,7 +57,7 @@ class UserMapperTest {
         assertEquals(1L, dto.getId());
         assertEquals("Primo", dto.getName());
         assertEquals("primo@example.com", dto.getEmail());
-        assertEquals(Collections.singleton(Role.ROLE_CUSTOMER), dto.getRoles());
+        assertEquals(Role.ROLE_CUSTOMER, dto.getRole());
     }
 
     @Test

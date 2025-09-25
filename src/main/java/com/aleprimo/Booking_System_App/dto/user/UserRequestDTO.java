@@ -28,8 +28,8 @@ public class UserRequestDTO {
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
-    @Schema(description = "Conjunto de roles asignados al usuario")
-    @NotNull(message = "Los roles son obligatorios")
-    private Set<Role> roles;
+    @Schema(description = "Rol asignado al usuario")
+    @NotNull(message = "El rol es obligatorio")
+    private Role role;
 
 }

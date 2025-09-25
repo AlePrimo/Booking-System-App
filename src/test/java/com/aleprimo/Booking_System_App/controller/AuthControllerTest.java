@@ -6,6 +6,7 @@ import com.aleprimo.Booking_System_App.dto.auth.RegisterRequestDTO;
 import com.aleprimo.Booking_System_App.dto.auth.RegisterResponseDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginRequestDTO;
 import com.aleprimo.Booking_System_App.dto.login.LoginResponseDTO;
+import com.aleprimo.Booking_System_App.entity.enums.Role;
 import com.aleprimo.Booking_System_App.security.AuthService;
 import com.aleprimo.Booking_System_App.security.CustomUserDetailsService;
 import com.aleprimo.Booking_System_App.security.JwtUtil;
@@ -49,7 +50,7 @@ class AuthControllerTest {
     @Test
     void login_returnsAccessAndRefreshToken() throws Exception {
         LoginRequestDTO request = new LoginRequestDTO("user@example.com", "pass");
-        LoginResponseDTO response = new LoginResponseDTO("jwt-access", "jwt-refresh");
+        LoginResponseDTO response = new LoginResponseDTO("jwt-access", "jwt-refresh", Role.ROLE_CUSTOMER);
 
         when(authService.login(any(LoginRequestDTO.class))).thenReturn(response);
 
@@ -63,7 +64,7 @@ class AuthControllerTest {
 
     @Test
     void register_returnsUserData() throws Exception {
-        RegisterRequestDTO request = new RegisterRequestDTO("John", "john@example.com", "password123");
+        RegisterRequestDTO request = new RegisterRequestDTO("John", "john@example.com", "password123", Role.ROLE_CUSTOMER);
         RegisterResponseDTO response = new RegisterResponseDTO(1L, "John", "john@example.com");
 
         when(authService.register(any(RegisterRequestDTO.class))).thenReturn(response);
@@ -80,7 +81,7 @@ class AuthControllerTest {
     @Test
     void refresh_returnsNewAccessToken() throws Exception {
         String refreshToken = "jwt-refresh";
-        LoginResponseDTO response = new LoginResponseDTO("jwt-new-access", refreshToken);
+        LoginResponseDTO response = new LoginResponseDTO("jwt-new-access", refreshToken, Role.ROLE_CUSTOMER);
 
         when(authService.refresh(any(String.class))).thenReturn(response);
 

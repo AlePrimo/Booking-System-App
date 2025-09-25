@@ -16,7 +16,7 @@ class CustomUserDetailsTest {
         User user = User.builder()
                 .email("test@example.com")
                 .password("pass")
-                .roles(Set.of(Role.ROLE_ADMIN, Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_ADMIN)
                 .build();
 
         CustomUserDetails details = new CustomUserDetails(user);
@@ -24,7 +24,7 @@ class CustomUserDetailsTest {
         assertEquals("test@example.com", details.getUsername());
         assertEquals("pass", details.getPassword());
         assertTrue(details.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        assertTrue(details.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
+
 
         assertTrue(details.isAccountNonExpired());
         assertTrue(details.isAccountNonLocked());

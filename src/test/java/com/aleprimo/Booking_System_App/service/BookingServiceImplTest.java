@@ -54,7 +54,7 @@ class BookingServiceImplTest {
                 .name("Juan")
                 .email("juan@mail.com")
                 .password("1234")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
 
         provider = User.builder()
@@ -62,7 +62,7 @@ class BookingServiceImplTest {
                 .name("VANDALAY")
                 .email("vandalay@mail")
                 .password("vandalay124")
-                .roles(Set.of(Role.ROLE_PROVIDER))
+                .role(Role.ROLE_PROVIDER)
                 .build();
 
         Offering offering = Offering.builder()

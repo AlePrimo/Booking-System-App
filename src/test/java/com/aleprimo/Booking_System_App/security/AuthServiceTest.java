@@ -67,13 +67,13 @@ class AuthServiceTest {
                 .name("John Doe")
                 .email("john@example.com")
                 .password("encodedPassword")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
 
         userDetails = new CustomUserDetails(user);
 
         validLogin = new LoginRequestDTO("john@example.com", "password");
-        validRegister = new RegisterRequestDTO("John Doe", "john@example.com", "password123");
+        validRegister = new RegisterRequestDTO("John Doe", "john@example.com", "password123", Role.ROLE_CUSTOMER);
 
         // Mocks lenientes para evitar UnnecessaryStubbingException
         lenient().when(userDetailsService.loadUserByUsername(validLogin.getEmail())).thenReturn(userDetails);
@@ -135,7 +135,7 @@ class AuthServiceTest {
 
     @Test
     void register_throwsException_whenPasswordTooShort() {
-        RegisterRequestDTO shortPass = new RegisterRequestDTO("Jane", "jane@example.com", "123");
+        RegisterRequestDTO shortPass = new RegisterRequestDTO("Jane", "jane@example.com", "123", Role.ROLE_CUSTOMER);
 
         assertThatThrownBy(() -> authService.register(shortPass))
                 .isInstanceOf(IllegalArgumentException.class)

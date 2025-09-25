@@ -80,7 +80,7 @@ class BookingControllerTest {
                 .name("Juan")
                 .email("juan@mail.com")
                 .password("1234")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
         userService.createUser(customer);
 
@@ -89,7 +89,7 @@ class BookingControllerTest {
                 .name("VANDALAY")
                 .email("vandalay@mail")
                 .password("vandalay124")
-                .roles(Set.of(Role.ROLE_PROVIDER))
+                .role(Role.ROLE_PROVIDER)
                 .build();
         userService.createUser(provider);
 

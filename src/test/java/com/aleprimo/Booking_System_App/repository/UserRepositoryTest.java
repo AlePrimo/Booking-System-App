@@ -27,7 +27,7 @@ class UserRepositoryTest {
                 .name("Juan Pérez")
                 .email("juan@mail.com")
                 .password("123456")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
 
         User saved = userRepository.save(user);
@@ -43,7 +43,7 @@ class UserRepositoryTest {
                 .name("Ana López")
                 .email("ana@mail.com")
                 .password("abcdef")
-                .roles(Set.of(Role.ROLE_PROVIDER))
+                .role(Role.ROLE_PROVIDER)
                 .build();
 
         userRepository.save(user);
@@ -60,7 +60,7 @@ class UserRepositoryTest {
                 .name("Carlos")
                 .email("carlos@mail.com")
                 .password("qwerty")
-                .roles(Set.of(Role.ROLE_ADMIN))
+                .role(Role.ROLE_ADMIN)
                 .build();
 
         userRepository.save(user);
@@ -76,7 +76,7 @@ class UserRepositoryTest {
                 .name("Eliminar")
                 .email("delete@mail.com")
                 .password("delete")
-                .roles(Set.of(Role.ROLE_CUSTOMER))
+                .role(Role.ROLE_CUSTOMER)
                 .build();
 
         User saved = userRepository.save(user);
