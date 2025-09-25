@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -25,7 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.util.Optional;
-import java.util.Set;
+
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -85,15 +86,19 @@ class AuthServiceTest {
     // ===== LOGIN =====
     @Test
     void login_returnsToken_whenCredentialsAreValid() {
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(null);
+        when(userRepository.findByEmail(validLogin.getEmail()))
+                .thenReturn(Optional.of(user)); // ✅ simula que el usuario existe
 
         LoginResponseDTO response = authService.login(validLogin);
 
         assertThat(response.getToken()).isEqualTo("mocked-token");
-        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtUtil, times(1)).generateToken(userDetails.getUsername());
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtUtil, times(1))
+                .generateToken(userDetails.getUsername());
     }
-
     @Test
     void login_throwsException_whenUserDetailsAreNull() {
         when(userDetailsService.loadUserByUsername(validLogin.getEmail())).thenReturn(null);
@@ -148,6 +153,8 @@ class AuthServiceTest {
         String refreshToken = "valid-refresh";
         when(jwtUtil.extractUsername(refreshToken)).thenReturn("john@example.com");
         when(jwtUtil.isTokenExpired(refreshToken)).thenReturn(false);
+        when(userRepository.findByEmail("john@example.com"))
+                .thenReturn(Optional.of(user)); // ✅ simula que el usuario existe
         when(jwtUtil.generateToken("john@example.com")).thenReturn("new-access-token");
 
         LoginResponseDTO response = authService.refresh(refreshToken);
@@ -171,11 +178,14 @@ class AuthServiceTest {
         String refreshToken = "expired-refresh";
         when(jwtUtil.extractUsername(refreshToken)).thenReturn("john@example.com");
         when(jwtUtil.isTokenExpired(refreshToken)).thenReturn(true);
+        when(userRepository.findByEmail("john@example.com"))
+                .thenReturn(Optional.of(user)); // ✅ simula usuario existente
 
         assertThatThrownBy(() -> authService.refresh(refreshToken))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessageContaining("Refresh token expirado");
     }
+
 
 
 

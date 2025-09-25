@@ -27,7 +27,7 @@ public class RegisterRequestDTO {
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
-
+    @NotBlank(message = "El rol es obligatorio")
     @Schema(description = "Rol del usuario autenticado", example = "ROLE_CUSTOMER")
     private Role role;
 
