@@ -12,12 +12,7 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL  -- almacena el enum como string (ROLE_ADMIN, ROLE_CUSTOMER, ROLE_PROVIDER)
 );
 
--- Tabla de roles asignados a usuarios (Role como enum)
-CREATE TABLE user_roles (
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    role VARCHAR(20) NOT NULL,
-    PRIMARY KEY(user_id, role)
-);
+
 
 -- Tabla de offerings (antes Service)
 CREATE TABLE offerings (
