@@ -36,7 +36,7 @@ public class User {
 
 
     @Enumerated(EnumType.STRING)
-
+    @NotBlank
     @Column(name = "role", nullable = false)
     private Role role;
 }
