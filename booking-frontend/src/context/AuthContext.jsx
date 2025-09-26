@@ -3,13 +3,14 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined); // undefined = aún no cargado
 
   useEffect(() => {
-    // Cargar usuario desde localStorage al refrescar la página
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+    } else {
+      setUser(null);
     }
   }, []);
 

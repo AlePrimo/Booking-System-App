@@ -6,7 +6,12 @@ import axios from "axios";
  * Stores tokens in localStorage under accessToken / refreshToken.
  */
 
-const API_URL = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) || process.env.REACT_APP_API_URL || "http://localhost:8080";
+const API_URL =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_URL) ||
+  process.env.REACT_APP_API_URL ||
+  "http://localhost:8080";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -67,7 +72,13 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) throw new Error("No refresh token");
+
+        // 🔹 No hay refresh token: solo reject y no rompe la app
+        if (!refreshToken) {
+          console.warn("No refresh token disponible, se omite refresh");
+          isRefreshing = false;
+          return Promise.reject(error);
+        }
 
         // Hacemos la llamada directamente con axios (sin interceptors) para evitar loops
         const resp = await axios.post(`${API_URL}/auth/refresh`, null, {
@@ -92,7 +103,9 @@ api.interceptors.response.use(
         localStorage.removeItem("refreshToken");
         isRefreshing = false;
         // opcional: redirigir al login
-        try { window.location.href = "/login"; } catch(e) {}
+        try {
+          window.location.href = "/login";
+        } catch (e) {}
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
