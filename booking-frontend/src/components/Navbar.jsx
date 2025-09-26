@@ -6,7 +6,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
 
-  const hasRole = (role) => user?.roles?.includes(role);
+  const hasRole = (role) => user?.role === role;
 
   return (
     <nav className="bg-white shadow-md">
@@ -18,35 +18,28 @@ export default function Navbar() {
 
         {/* Links desktop */}
         <div className="hidden md:flex space-x-6">
-          {!user && (
+          {user ? (
             <>
-              <Link to="/login" className="hover:text-indigo-600">Login</Link>
-              <Link to="/register" className="hover:text-indigo-600">Register</Link>
+              {hasRole("ROLE_CUSTOMER") && (
+                <>
+                  <Link to="/reservas" className="hover:text-indigo-600">Reservas</Link>
+                  <Link to="/notificaciones" className="hover:text-indigo-600">Notificaciones</Link>
+                </>
+              )}
+              {hasRole("ROLE_ADMIN") && (
+                <>
+                  <Link to="/ofertas" className="hover:text-indigo-600">Ofertas</Link>
+                  <Link to="/usuarios" className="hover:text-indigo-600">Usuarios</Link>
+                </>
+              )}
+              {hasRole("ROLE_PROVIDER") && (
+                <Link to="/dashboard-provider" className="hover:text-indigo-600">Dashboard Proveedor</Link>
+              )}
+              <button onClick={logout} className="hover:text-red-600 font-semibold">
+                Logout
+              </button>
             </>
-          )}
-
-          {hasRole("ROLE_USER") && (
-            <>
-              <Link to="/reservas" className="hover:text-indigo-600">Reservas</Link>
-              <Link to="/notificaciones" className="hover:text-indigo-600">Notificaciones</Link>
-            </>
-          )}
-
-          {hasRole("ROLE_ADMIN") && (
-            <>
-              <Link to="/ofertas" className="hover:text-indigo-600">Ofertas</Link>
-              <Link to="/usuarios" className="hover:text-indigo-600">Usuarios</Link>
-            </>
-          )}
-
-          {user && (
-            <button
-              onClick={logout}
-              className="hover:text-red-600 font-semibold"
-            >
-              Logout
-            </button>
-          )}
+          ) : null /* ya no mostramos mensaje cuando no está logueado */}
         </div>
 
         {/* Botón mobile */}
@@ -61,35 +54,26 @@ export default function Navbar() {
       {/* Menu mobile */}
       {isOpen && (
         <div className="md:hidden bg-white px-6 py-4 space-y-2">
-          {!user && (
+          {user ? (
             <>
-              <Link to="/login" className="block hover:text-indigo-600">Login</Link>
-              <Link to="/register" className="block hover:text-indigo-600">Register</Link>
+              {hasRole("ROLE_CUSTOMER") && (
+                <>
+                  <Link to="/reservas" className="block hover:text-indigo-600">Reservas</Link>
+                  <Link to="/notificaciones" className="block hover:text-indigo-600">Notificaciones</Link>
+                </>
+              )}
+              {hasRole("ROLE_ADMIN") && (
+                <>
+                  <Link to="/ofertas" className="block hover:text-indigo-600">Ofertas</Link>
+                  <Link to="/usuarios" className="block hover:text-indigo-600">Usuarios</Link>
+                </>
+              )}
+              {hasRole("ROLE_PROVIDER") && (
+                <Link to="/dashboard-provider" className="block hover:text-indigo-600">Dashboard Proveedor</Link>
+              )}
+              <button onClick={logout} className="block hover:text-red-600 font-semibold">Logout</button>
             </>
-          )}
-
-          {hasRole("ROLE_USER") && (
-            <>
-              <Link to="/reservas" className="block hover:text-indigo-600">Reservas</Link>
-              <Link to="/notificaciones" className="block hover:text-indigo-600">Notificaciones</Link>
-            </>
-          )}
-
-          {hasRole("ROLE_ADMIN") && (
-            <>
-              <Link to="/ofertas" className="block hover:text-indigo-600">Ofertas</Link>
-              <Link to="/usuarios" className="block hover:text-indigo-600">Usuarios</Link>
-            </>
-          )}
-
-          {user && (
-            <button
-              onClick={logout}
-              className="block hover:text-red-600 font-semibold"
-            >
-              Logout
-            </button>
-          )}
+          ) : null}
         </div>
       )}
     </nav>
