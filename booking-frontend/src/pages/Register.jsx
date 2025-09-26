@@ -1,23 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { register as registerUser } from "../services/authService"; // 🔹 IMPORTAR SERVICIO
+import { register as registerUser } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // ahora login llama al backend
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "customer", // valor por defecto
+    role: "customer",
   });
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -28,7 +27,6 @@ export default function Register() {
       return;
     }
 
-    // Convertimos el rol a formato backend
     const mappedRole =
       formData.role === "customer" ? "ROLE_CUSTOMER" : "ROLE_PROVIDER";
 
@@ -40,13 +38,24 @@ export default function Register() {
     };
 
     try {
-      // 🔹 Usamos el servicio authService en lugar de fetch
+      // Registramos al usuario
       await registerUser(payload);
 
-      // Si todo va bien → redirige al login
-      navigate("/");
+      // Login automático usando login real
+      const userLogged = await login(formData.email, formData.password);
+
+      // Redirigimos según rol
+      if (userLogged.role === "ROLE_CUSTOMER") {
+        navigate("/dashboard-customer");
+      } else if (userLogged.role === "ROLE_PROVIDER") {
+        navigate("/dashboard-provider");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
-      setError(err.message || "Error al registrarse");
+      setError(
+        err.response?.data?.message || err.message || "Error al registrarse"
+      );
     }
   };
 

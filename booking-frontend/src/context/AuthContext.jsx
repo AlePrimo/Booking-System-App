@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import api from "../services/axiosClient";
 
 const AuthContext = createContext();
 
@@ -14,9 +15,23 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = (userData) => {
+  // 🔹 Login real que llama al backend
+  const login = async (email, password) => {
+    const res = await api.post("/auth/login", { email, password });
+
+    // Backend devuelve token + refreshToken + role
+    const userData = {
+      name: res.data.name, // si tu backend devuelve name
+      email: email,
+      role: res.data.role, // ROLE_CUSTOMER o ROLE_PROVIDER
+    };
+
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("accessToken", res.data.token);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+
+    return userData;
   };
 
   const logout = () => {
@@ -36,6 +51,4 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
-
-
 

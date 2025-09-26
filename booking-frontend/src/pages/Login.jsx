@@ -1,18 +1,35 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    try {
+      const userLogged = await login(email, password);
+
+      // Redirigimos según rol
+      if (userLogged.role === "ROLE_CUSTOMER") {
+        navigate("/dashboard-customer");
+      } else if (userLogged.role === "ROLE_PROVIDER") {
+        navigate("/dashboard-provider");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Error al ingresar");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <p className="text-red-500 text-center">{error}</p>}
       <div>
         <label className="block text-sm font-medium text-gray-700">Email</label>
         <input
