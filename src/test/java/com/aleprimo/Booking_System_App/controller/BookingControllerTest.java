@@ -16,9 +16,11 @@ import com.aleprimo.Booking_System_App.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -207,4 +209,32 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].offeringId").value(1L));
     }
+
+    @Test
+    void testGetBookingsByCustomer() throws Exception {
+        // Mockeamos la página de Booking
+        Page<Booking> bookingPage = new PageImpl<>(List.of(booking), PageRequest.of(0, 10), 1);
+
+        // Mockeamos el servicio
+        Mockito.when(bookingService.getBookingsByCustomerId(1L, PageRequest.of(0, 10)))
+                .thenReturn(bookingPage);
+
+        // Realizamos la petición GET al endpoint
+        mockMvc.perform(get("/api/bookings/customer/{customerId}", 1L)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())  // Verifica que devuelve 200 OK
+                .andExpect(jsonPath("$.content").isArray())  // Verifica que hay un array content
+                .andExpect(jsonPath("$.content[0].id").value(booking.getId()))
+                .andExpect(jsonPath("$.content[0].customerId").value(customer.getId()))
+                .andExpect(jsonPath("$.content[0].offeringId").value(offering.getId()))
+                .andExpect(jsonPath("$.content[0].status").value(booking.getStatus().name()))
+                .andExpect(jsonPath("$.content[0].bookingDateTime").exists()); // Fecha existe
+
+        // Verificamos que el servicio fue llamado exactamente una vez
+        Mockito.verify(bookingService, Mockito.times(1))
+                .getBookingsByCustomerId(1L, PageRequest.of(0, 10));
+    }
+
+
 }
