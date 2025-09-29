@@ -18,4 +18,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByStatus(BookingStatus status, Pageable pageable);
 
     Page<Booking> findByBookingDateTimeBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
+
 }

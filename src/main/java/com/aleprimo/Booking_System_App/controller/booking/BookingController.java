@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -110,4 +111,31 @@ public class BookingController {
 
 
     }
+    @GetMapping("/customer/{customerId}")
+    @Operation(
+            summary = "Obtener reservas de un cliente",
+            description = "Devuelve la lista paginada de reservas asociadas a un cliente por su ID"
+    )
+    public ResponseEntity<Page<BookingResponseDTO>> getBookingsByCustomer(
+            @PathVariable Long customerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Booking> bookings = bookingService.getBookingsByCustomerId(customerId, pageable);
+
+        Page<BookingResponseDTO> dtoPage = bookings.map(booking -> BookingResponseDTO.builder()
+                .id(booking.getId())
+                .customerId(booking.getCustomer().getId())
+                .offeringId(booking.getOffering().getId())
+                .bookingDateTime(booking.getBookingDateTime())
+                .status(booking.getStatus())
+                .build()
+        );
+
+        return ResponseEntity.ok(dtoPage);
+    }
+
+
+
 }
