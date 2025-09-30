@@ -15,15 +15,15 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Ajustá el/los orígenes según donde corre tu frontend
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // <- cambia si corresponde
+
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.137.1:5173", "http://192.168.100.72:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica a todos los endpoints
+
         source.registerCorsConfiguration("/**", config);
         return source;
     }
