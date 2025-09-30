@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 
 import Bookings from "./pages/Bookings";
 import Services from "./pages/Services";
+import ServiceDetail from "./pages/ServiceDetail"; // NUEVA
 import Notifications from "./pages/Notifications";
 import Users from "./pages/Users";
 import Payments from "./pages/Payments";
@@ -18,8 +19,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <main className="container mx-auto py-6 px-4">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <main className="container mx-auto py-6 px-4 flex-1">
         <Routes>
           {/* Home y Register */}
           <Route path="/" element={<Home />} />
@@ -80,8 +81,7 @@ function App() {
             path="/servicios/:id"
             element={
               <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
-                {/* Aquí podrías crear un ServiceDetail.jsx */}
-                <Services />
+                <ServiceDetail /> {/* PÁGINA DE DETALLE */}
               </ProtectedRoute>
             }
           />
