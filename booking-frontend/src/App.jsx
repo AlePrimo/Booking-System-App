@@ -1,14 +1,13 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
-import Register from "./pages/Register"; // 🔹 IMPORTANTE: agregar Register
+import Register from "./pages/Register";
 
 import Bookings from "./pages/Bookings";
-import Offerings from "./pages/Offerings";
+import Services from "./pages/Services";
+import Notifications from "./pages/Notifications";
 import Users from "./pages/Users";
 import Payments from "./pages/Payments";
-import Notifications from "./pages/Notifications";
 
 import DashboardAdmin from "./pages/DashboardAdmin";
 import DashboardCustomer from "./pages/DashboardCustomer";
@@ -20,13 +19,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
-
       <main className="container mx-auto py-6 px-4">
         <Routes>
-          {/* Home con Login/Register */}
+          {/* Home y Register */}
           <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} /> {/* 🔹 AGREGAR */}
+          <Route path="/register" element={<Register />} />
 
           {/* Dashboards */}
           <Route
@@ -71,13 +68,30 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/servicios"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
+                <Services />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/servicios/:id"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
+                {/* Aquí podrías crear un ServiceDetail.jsx */}
+                <Services />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Rutas privadas ADMIN */}
           <Route
             path="/ofertas"
             element={
               <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
-                <Offerings />
+                <Services />
               </ProtectedRoute>
             }
           />
@@ -90,7 +104,7 @@ function App() {
             }
           />
 
-          {/* Rutas privadas compartidas */}
+          {/* Rutas compartidas */}
           <Route
             path="/payments"
             element={
