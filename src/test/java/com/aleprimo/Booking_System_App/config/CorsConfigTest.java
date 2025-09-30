@@ -1,48 +1,44 @@
 package com.aleprimo.Booking_System_App.config;
 
 
-
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.servlet.config.annotation.CorsRegistration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CorsConfigTest {
-    private CorsConfig corsConfig;
 
-    @BeforeEach
-    void setUp() {
-        corsConfig = new CorsConfig();
-    }
+    private final CorsConfig corsConfig = new CorsConfig();
 
     @Test
-    void testCorsConfigurer_addsCorsMappings() {
-        // mock del registry y del objeto que devuelve addMapping
-        CorsRegistry registry = mock(CorsRegistry.class);
-        CorsRegistration registration = mock(CorsRegistration.class);
+    void testCorsConfigurationSource() {
+        CorsConfigurationSource source = corsConfig.corsConfigurationSource();
+        assertNotNull(source);
 
-        // when: addMapping(...) devuelve el CorsRegistration
-        when(registry.addMapping(anyString())).thenReturn(registration);
+        // Crear request mock
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/any/path");
 
-        // stubs para los métodos encadenados (varargs se stubean con any(String[].class))
-        when(registration.allowedOrigins(anyString())).thenReturn(registration);
-        when(registration.allowedMethods(any(String[].class))).thenReturn(registration);
-        when(registration.allowedHeaders(any(String[].class))).thenReturn(registration);
-        when(registration.allowCredentials(anyBoolean())).thenReturn(registration);
+        // Obtener configuración
+        CorsConfiguration config = source.getCorsConfiguration(request);
+        assertNotNull(config);
 
-        // obtener el WebMvcConfigurer y ejecutar
-        WebMvcConfigurer configurer = corsConfig.corsConfigurer();
-        configurer.addCorsMappings(registry);
+        // Verificaciones
+        assertEquals(3, config.getAllowedOrigins().size());
+        assertTrue(config.getAllowedOrigins().contains("http://localhost:5173"));
+        assertTrue(config.getAllowedOrigins().contains("http://192.168.137.1:5173"));
+        assertTrue(config.getAllowedOrigins().contains("http://192.168.100.72:5173"));
 
-        // verificaciones: addMapping en registry y luego llamadas en registration
-        verify(registry).addMapping("/**");
-        verify(registration).allowedOrigins("http://localhost:5173");
-        verify(registration).allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
-        verify(registration).allowedHeaders("*");
-        verify(registration).allowCredentials(true);
+        assertTrue(config.getAllowedMethods().contains("GET"));
+        assertTrue(config.getAllowedMethods().contains("POST"));
+        assertTrue(config.getAllowedMethods().contains("PUT"));
+        assertTrue(config.getAllowedMethods().contains("DELETE"));
+        assertTrue(config.getAllowedMethods().contains("OPTIONS"));
+
+        assertTrue(config.getAllowedHeaders().contains("*"));
+        assertTrue(config.getAllowCredentials());
+        assertEquals(3600L, config.getMaxAge());
     }
 }
