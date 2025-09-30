@@ -1,15 +1,28 @@
 import { useEffect, useState } from "react";
 import { getOfferings } from "../api/offeringService";
+import { createBooking } from "../api/bookingService";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+import ServiceDetailsModal from "../components/ServiceDetailsModal";
+import BookingModal from "../components/BookingModal";
+import ConfirmBookingModal from "../components/ConfirmBookingModal";
 
 export default function Services() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [offerings, setOfferings] = useState([]);
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [selectedService, setSelectedService] = useState(null);
+  const [bookingData, setBookingData] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const fetchOfferings = async () => {
     setLoading(true);
@@ -32,6 +45,33 @@ export default function Services() {
     fetchOfferings();
   }, [page]);
 
+  const handleReserve = (formData) => {
+    setBookingData(formData);
+    setShowBookingModal(false);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmBooking = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      await createBooking(
+        {
+          customerId: user.id,
+          offeringId: selectedService.id,
+          bookingDateTime: bookingData.bookingDateTime,
+          status: "PENDING",
+        },
+        token
+      );
+      alert("Reserva creada con éxito");
+      setShowConfirmModal(false);
+      setSelectedService(null);
+    } catch (err) {
+      console.error("Error al crear la reserva:", err);
+      alert("No se pudo crear la reserva.");
+    }
+  };
+
   return (
     <div className="p-6">
       <button
@@ -51,13 +91,14 @@ export default function Services() {
           <li
             key={o.id}
             className="border p-2 rounded cursor-pointer hover:bg-gray-100"
-            onClick={() => navigate(`/servicios/${o.id}`)}
+            onClick={() => setSelectedService(o)}
           >
             {o.name} - ${o.price}
           </li>
         ))}
       </ul>
 
+      {/* PAGINACIÓN */}
       {totalPages > 1 && (
         <div className="flex gap-2 mt-4 items-center">
           <button
@@ -74,8 +115,36 @@ export default function Services() {
           >
             Siguiente
           </button>
-          <span className="ml-2">Página {page + 1} de {totalPages}</span>
+          <span className="ml-2">
+            Página {page + 1} de {totalPages}
+          </span>
         </div>
+      )}
+
+      {/* MODALES */}
+      {selectedService && !showBookingModal && !showConfirmModal && (
+        <ServiceDetailsModal
+          service={selectedService}
+          onClose={() => setSelectedService(null)}
+          onReserve={() => setShowBookingModal(true)}
+        />
+      )}
+
+      {showBookingModal && (
+        <BookingModal
+          service={selectedService}
+          onClose={() => setShowBookingModal(false)}
+          onSubmit={handleReserve}
+        />
+      )}
+
+      {showConfirmModal && (
+        <ConfirmBookingModal
+          service={selectedService}
+          bookingData={bookingData}
+          onConfirm={handleConfirmBooking}
+          onCancel={() => setShowConfirmModal(false)}
+        />
       )}
     </div>
   );
