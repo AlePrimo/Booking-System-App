@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getOfferings } from "../api/offeringService";
@@ -10,7 +11,7 @@ import { useAuth } from "../context/AuthContext";
 export default function ServiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, ensureUserId } = useAuth();
+  const { user, ensureUser } = useAuth();
 
   const [service, setService] = useState(null);
   const [providerName, setProviderName] = useState("Desconocido");
@@ -62,8 +63,8 @@ export default function ServiceDetail() {
 
   const handleConfirmBooking = async () => {
     try {
-      // 🔹 asegurar que el user tenga id
-      const currentUser = await ensureUserId();
+      // 🔹 Obtener usuario completo por email para conseguir el id
+      const currentUser = await ensureUser();
 
       if (!currentUser || !currentUser.id) {
         alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
@@ -72,13 +73,11 @@ export default function ServiceDetail() {
 
       const token = localStorage.getItem("accessToken");
       let bookingDateTime = bookingData.bookingDateTime;
-      if (bookingDateTime.length === 16) {
-        bookingDateTime += ":00";
-      }
+      if (bookingDateTime.length === 16) bookingDateTime += ":00";
 
       await createBooking(
         {
-          customerId: currentUser.id, // ✅ ahora siempre viene
+          customerId: currentUser.id,
           offeringId: service.id,
           bookingDateTime,
           status: "PENDING",
@@ -138,4 +137,3 @@ export default function ServiceDetail() {
     </div>
   );
 }
-

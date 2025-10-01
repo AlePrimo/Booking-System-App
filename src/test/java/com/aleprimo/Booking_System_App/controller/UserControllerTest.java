@@ -31,8 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -163,4 +162,43 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].email").value("juan@mail.com"));
     }
+
+    @Test
+    @WithMockUser(roles = {"CUSTOMER"})
+
+    void getUserByEmail_success() throws Exception {
+        // Arrange
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@mail.com");
+
+        UserResponseDTO dto = UserResponseDTO.builder()
+                .id(1L)
+                .email("test@mail.com")
+                .build();
+
+        Mockito.when(userService.getUserByEmail(anyString())).thenReturn(Optional.of(user));
+        Mockito.when(userMapper.toDTO(user)).thenReturn(dto);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/users/email/{email}", "test@mail.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.email").value("test@mail.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = {"CUSTOMER"})
+
+    void getUserByEmail_notFound() throws Exception {
+        // Arrange
+        Mockito.when(userService.getUserByEmail(anyString())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/users/email/{email}", "notfound@mail.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
 }

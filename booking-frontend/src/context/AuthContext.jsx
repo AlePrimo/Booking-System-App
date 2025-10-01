@@ -1,54 +1,47 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import api from "../api/axiosClient";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(undefined); // undefined = aún no cargado
+  const [user, setUser] = useState(null); // estado solo en memoria
+  const [token, setToken] = useState(null); // token solo en memoria
+  const [refreshToken, setRefreshToken] = useState(null);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else {
-      setUser(null);
-    }
-  }, []);
-
-  // 🔹 Login real que llama al backend
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
 
-    // Backend devuelve: id + token + refreshToken + role (+ name opcional)
+    const t = res.data.token;
+
+    // Obtener usuario completo por email
+    const userRes = await api.get(`/api/users/email/${email}`, {
+      headers: { Authorization: `Bearer ${t}` },
+    });
+
     const userData = {
-      id: res.data.id,       // <-- ID real del usuario (Long en el back)
-      name: res.data.name,   // opcional, depende de lo que devuelva tu back
-      email: email,          // lo guardamos solo como referencia
-      role: res.data.role,   // ROLE_CUSTOMER o ROLE_PROVIDER
+      id: userRes.data.id,
+      name: userRes.data.name,
+      email: email,
+      role: res.data.role,
     };
 
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("accessToken", res.data.token);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
+    setToken(t);
+    setRefreshToken(res.data.refreshToken);
 
     return userData;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    setToken(null);
+    setRefreshToken(null);
   };
 
-  // 🔹 Si alguna vez necesitás refrescar datos del usuario desde el back:
-  const ensureUserId = async () => {
-    if (!user) return null;
+  const ensureUser = async () => {
+    if (!user || !token) return null;
 
-    const token = localStorage.getItem("accessToken");
-    // 🚀 ahora usamos el ID, no el email
-    const res = await api.get(`/api/users/${user.id}`, {
+    const res = await api.get(`/api/users/email/${user.email}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -56,7 +49,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, ensureUserId }}>
+    <AuthContext.Provider value={{ user, token, refreshToken, login, logout, ensureUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -65,4 +58,5 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
+
 
