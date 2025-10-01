@@ -91,4 +91,25 @@ public class UserController {
                 .map(userMapper::toDTO);
         return ResponseEntity.ok(PageResponseUtil.from(page));
     }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @GetMapping("/email/{email}")
+    @Operation(summary = "Obtener un usuario por email",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+                    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            })
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
+        return userService.getUserByEmail(email)
+                .map(userMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
+
+
+
 }
