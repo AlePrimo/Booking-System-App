@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getOfferings } from "../api/offeringService";
@@ -11,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 export default function ServiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, ensureUser } = useAuth();
+  const { user, token, ensureUser } = useAuth(); // token desde contexto
 
   const [service, setService] = useState(null);
   const [providerName, setProviderName] = useState("Desconocido");
@@ -24,7 +23,8 @@ export default function ServiceDetail() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        if (!token) throw new Error("Usuario no autenticado");
+
         const res = await getOfferings(0, 100, token);
         const allServices = res.data.content || res.data;
         const found = allServices.find((s) => s.id === parseInt(id));
@@ -53,7 +53,7 @@ export default function ServiceDetail() {
     };
 
     fetchService();
-  }, [id]);
+  }, [id, token]);
 
   const handleReserveSubmit = (data) => {
     setBookingData(data);
@@ -63,7 +63,12 @@ export default function ServiceDetail() {
 
   const handleConfirmBooking = async () => {
     try {
-      // 🔹 Obtener usuario completo por email para conseguir el id
+      if (!token) {
+        alert("Usuario no autenticado. Inicia sesión nuevamente.");
+        return;
+      }
+
+      // 🔹 Obtener usuario completo por email
       const currentUser = await ensureUser();
 
       if (!currentUser || !currentUser.id) {
@@ -71,7 +76,6 @@ export default function ServiceDetail() {
         return;
       }
 
-      const token = localStorage.getItem("accessToken");
       let bookingDateTime = bookingData.bookingDateTime;
       if (bookingDateTime.length === 16) bookingDateTime += ":00";
 
