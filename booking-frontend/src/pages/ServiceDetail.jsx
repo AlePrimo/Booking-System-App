@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 export default function ServiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, ensureUserId } = useAuth();
 
   const [service, setService] = useState(null);
   const [providerName, setProviderName] = useState("Desconocido");
@@ -24,16 +24,17 @@ export default function ServiceDetail() {
     const fetchService = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await getOfferings(0, 100, token); // traemos todos los servicios
+        const res = await getOfferings(0, 100, token);
         const allServices = res.data.content || res.data;
         const found = allServices.find((s) => s.id === parseInt(id));
+
         if (!found) {
           setError("Servicio no encontrado");
           return;
         }
+
         setService(found);
 
-        // Traer el nombre del proveedor
         if (found.providerId) {
           try {
             const providerRes = await getUserById(found.providerId, token);
@@ -60,19 +61,31 @@ export default function ServiceDetail() {
   };
 
   const handleConfirmBooking = async () => {
-    if (!service || !bookingData) return;
-
     try {
+      // 🔹 asegurar que el user tenga id
+      const currentUser = await ensureUserId();
+
+      if (!currentUser || !currentUser.id) {
+        alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
+        return;
+      }
+
       const token = localStorage.getItem("accessToken");
+      let bookingDateTime = bookingData.bookingDateTime;
+      if (bookingDateTime.length === 16) {
+        bookingDateTime += ":00";
+      }
+
       await createBooking(
         {
-          customerId: user.id,
+          customerId: currentUser.id, // ✅ ahora siempre viene
           offeringId: service.id,
-          bookingDateTime: bookingData.bookingDateTime,
+          bookingDateTime,
           status: "PENDING",
         },
         token
       );
+
       alert("Reserva creada con éxito");
       setShowConfirmModal(false);
     } catch (err) {
@@ -125,3 +138,4 @@ export default function ServiceDetail() {
     </div>
   );
 }
+
