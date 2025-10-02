@@ -84,11 +84,10 @@ class BookingServiceImplTest {
     }
 
     // ==================================
-    // TESTS CREATE / UPDATE con NOTIFICACIONES
+    // CREATE BOOKING
     // ==================================
-
     @Test
-    void testCreateBookingWithNotifications() {
+    void testCreateBookingWithProviderNotifications() {
         when(bookingDAO.save(booking)).thenReturn(booking);
 
         Booking saved = bookingService.createBooking(booking);
@@ -96,13 +95,32 @@ class BookingServiceImplTest {
         assertThat(saved).isEqualTo(booking);
 
         verify(bookingDAO, times(1)).save(booking);
-        // Se crean 2 notificaciones: EMAIL y SMS
+        // 2 notificaciones: EMAIL y SMS
         verify(notificationService, times(2)).createNotification(any());
         verifyNoMoreInteractions(bookingDAO, notificationService);
     }
 
     @Test
-    void testUpdateBookingWithNotifications() {
+    void testCreateBookingWithoutProvider() {
+        booking.setOffering(null); // forzar sin provider
+
+        when(bookingDAO.save(booking)).thenReturn(booking);
+
+        Booking saved = bookingService.createBooking(booking);
+
+        assertThat(saved).isEqualTo(booking);
+
+        verify(bookingDAO, times(1)).save(booking);
+        // No debe crear notificaciones
+        verify(notificationService, never()).createNotification(any());
+        verifyNoMoreInteractions(bookingDAO, notificationService);
+    }
+
+    // ==================================
+    // UPDATE BOOKING
+    // ==================================
+    @Test
+    void testUpdateBookingWithProviderNotifications() {
         Booking updateData = Booking.builder()
                 .customer(customer)
                 .status(BookingStatus.CONFIRMED)
@@ -121,30 +139,31 @@ class BookingServiceImplTest {
 
         verify(bookingDAO, times(1)).findById(1L);
         verify(bookingDAO, times(1)).save(booking);
+        // 2 notificaciones: EMAIL y SMS
         verify(notificationService, times(2)).createNotification(any());
         verifyNoMoreInteractions(bookingDAO, notificationService);
     }
 
-    // ==================================
-    // TESTS CRUD BÁSICOS
-    // ==================================
-
     @Test
-    void testGetBookingByIdFound() {
+    void testUpdateBookingWithoutProvider() {
+        Booking updateData = Booking.builder()
+                .customer(customer)
+                .status(BookingStatus.CONFIRMED)
+                .bookingDateTime(LocalDateTime.now().plusDays(2))
+                .offering(null)
+                .build();
+
         when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
-        Optional<Booking> found = bookingService.getBookingById(1L);
-        assertThat(found).isPresent().contains(booking);
-        verify(bookingDAO, times(1)).findById(1L);
-        verifyNoMoreInteractions(bookingDAO);
-    }
+        when(bookingDAO.save(any(Booking.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    @Test
-    void testGetBookingByIdNotFound() {
-        when(bookingDAO.findById(99L)).thenReturn(Optional.empty());
-        Optional<Booking> found = bookingService.getBookingById(99L);
-        assertThat(found).isEmpty();
-        verify(bookingDAO, times(1)).findById(99L);
-        verifyNoMoreInteractions(bookingDAO);
+        Booking updated = bookingService.updateBooking(1L, updateData);
+
+        assertThat(updated.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
+        // No notificaciones
+        verify(notificationService, never()).createNotification(any());
+        verify(bookingDAO, times(1)).findById(1L);
+        verify(bookingDAO, times(1)).save(booking);
+        verifyNoMoreInteractions(bookingDAO, notificationService);
     }
 
     @Test
@@ -156,6 +175,9 @@ class BookingServiceImplTest {
         verifyNoMoreInteractions(bookingDAO);
     }
 
+    // ==================================
+    // UPDATE STATUS
+    // ==================================
     @Test
     void testUpdateBookingStatusSuccess() {
         when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
@@ -177,6 +199,9 @@ class BookingServiceImplTest {
         verifyNoMoreInteractions(bookingDAO);
     }
 
+    // ==================================
+    // DELETE
+    // ==================================
     @Test
     void testDeleteBooking() {
         doNothing().when(bookingDAO).deleteById(1L);
@@ -186,9 +211,29 @@ class BookingServiceImplTest {
     }
 
     // ==================================
-    // TESTS PAGINACION
+    // GET BY ID
     // ==================================
+    @Test
+    void testGetBookingByIdFound() {
+        when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
+        Optional<Booking> found = bookingService.getBookingById(1L);
+        assertThat(found).isPresent().contains(booking);
+        verify(bookingDAO, times(1)).findById(1L);
+        verifyNoMoreInteractions(bookingDAO);
+    }
 
+    @Test
+    void testGetBookingByIdNotFound() {
+        when(bookingDAO.findById(99L)).thenReturn(Optional.empty());
+        Optional<Booking> found = bookingService.getBookingById(99L);
+        assertThat(found).isEmpty();
+        verify(bookingDAO, times(1)).findById(99L);
+        verifyNoMoreInteractions(bookingDAO);
+    }
+
+    // ==================================
+    // PAGINACION
+    // ==================================
     @Test
     void testGetAllBookings() {
         Pageable pageable = PageRequest.of(0, 10);
