@@ -71,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking updatedBooking = bookingDAO.save(booking1);
 
-      
+
         if (updatedBooking.getOffering() != null && updatedBooking.getOffering().getProvider() != null) {
             User provider = updatedBooking.getOffering().getProvider();
 

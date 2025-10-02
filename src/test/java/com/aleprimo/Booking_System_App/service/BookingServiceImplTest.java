@@ -1,15 +1,15 @@
 package com.aleprimo.Booking_System_App.service;
 
-
 import com.aleprimo.Booking_System_App.entity.Booking;
 import com.aleprimo.Booking_System_App.entity.Offering;
 import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.entity.enums.BookingStatus;
 import com.aleprimo.Booking_System_App.entity.enums.Role;
+import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
 import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.persistence.BookingDAO;
-
 import com.aleprimo.Booking_System_App.service.serviceImpl.BookingServiceImpl;
+import com.aleprimo.Booking_System_App.service.NotificationService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,10 +34,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
 
-
-
     @Mock
     private BookingDAO bookingDAO;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -84,38 +84,25 @@ class BookingServiceImplTest {
     }
 
     // ==================================
-    // TESTS CRUD
+    // TESTS CREATE / UPDATE con NOTIFICACIONES
     // ==================================
 
     @Test
-    void testCreateBooking() {
+    void testCreateBookingWithNotifications() {
         when(bookingDAO.save(booking)).thenReturn(booking);
+
         Booking saved = bookingService.createBooking(booking);
+
         assertThat(saved).isEqualTo(booking);
+
         verify(bookingDAO, times(1)).save(booking);
-        verifyNoMoreInteractions(bookingDAO);
+        // Se crean 2 notificaciones: EMAIL y SMS
+        verify(notificationService, times(2)).createNotification(any());
+        verifyNoMoreInteractions(bookingDAO, notificationService);
     }
 
     @Test
-    void testGetBookingByIdFound() {
-        when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
-        Optional<Booking> found = bookingService.getBookingById(1L);
-        assertThat(found).isPresent().contains(booking);
-        verify(bookingDAO, times(1)).findById(1L);
-        verifyNoMoreInteractions(bookingDAO);
-    }
-
-    @Test
-    void testGetBookingByIdNotFound() {
-        when(bookingDAO.findById(99L)).thenReturn(Optional.empty());
-        Optional<Booking> found = bookingService.getBookingById(99L);
-        assertThat(found).isEmpty();
-        verify(bookingDAO, times(1)).findById(99L);
-        verifyNoMoreInteractions(bookingDAO);
-    }
-
-    @Test
-    void testUpdateBookingSuccess() {
+    void testUpdateBookingWithNotifications() {
         Booking updateData = Booking.builder()
                 .customer(customer)
                 .status(BookingStatus.CONFIRMED)
@@ -134,6 +121,29 @@ class BookingServiceImplTest {
 
         verify(bookingDAO, times(1)).findById(1L);
         verify(bookingDAO, times(1)).save(booking);
+        verify(notificationService, times(2)).createNotification(any());
+        verifyNoMoreInteractions(bookingDAO, notificationService);
+    }
+
+    // ==================================
+    // TESTS CRUD BÁSICOS
+    // ==================================
+
+    @Test
+    void testGetBookingByIdFound() {
+        when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
+        Optional<Booking> found = bookingService.getBookingById(1L);
+        assertThat(found).isPresent().contains(booking);
+        verify(bookingDAO, times(1)).findById(1L);
+        verifyNoMoreInteractions(bookingDAO);
+    }
+
+    @Test
+    void testGetBookingByIdNotFound() {
+        when(bookingDAO.findById(99L)).thenReturn(Optional.empty());
+        Optional<Booking> found = bookingService.getBookingById(99L);
+        assertThat(found).isEmpty();
+        verify(bookingDAO, times(1)).findById(99L);
         verifyNoMoreInteractions(bookingDAO);
     }
 
@@ -245,11 +255,4 @@ class BookingServiceImplTest {
         verify(bookingDAO, times(1)).findByBookingDateTimeBetween(start, end, pageable);
         verifyNoMoreInteractions(bookingDAO);
     }
-
-
-
-
-
-
-
 }
