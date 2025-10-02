@@ -1,11 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 
 import Bookings from "./pages/Bookings";
 import Services from "./pages/Services";
-import ServiceDetail from "./pages/ServiceDetail"; // NUEVA
+import ServiceDetail from "./pages/ServiceDetail";
 import Notifications from "./pages/Notifications";
 import Users from "./pages/Users";
 import Payments from "./pages/Payments";
@@ -17,9 +18,24 @@ import DashboardProvider from "./pages/DashboardProvider";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+export default function App() {
+  const { isSessionExpired, closeSessionAlert } = useAuth();
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Banner global de sesión expirada */}
+      {isSessionExpired && (
+        <div className="bg-red-600 text-white text-center p-4">
+          <p>Tu sesión ha expirado. Por favor, inicia sesión nuevamente.</p>
+          <button
+            onClick={closeSessionAlert}
+            className="mt-2 px-3 py-1 border rounded bg-white text-red-600"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
       <main className="container mx-auto py-6 px-4 flex-1">
         <Routes>
           {/* Home y Register */}
@@ -81,7 +97,7 @@ function App() {
             path="/servicios/:id"
             element={
               <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
-                <ServiceDetail /> {/* PÁGINA DE DETALLE */}
+                <ServiceDetail />
               </ProtectedRoute>
             }
           />
@@ -129,4 +145,3 @@ function App() {
   );
 }
 
-export default App;
