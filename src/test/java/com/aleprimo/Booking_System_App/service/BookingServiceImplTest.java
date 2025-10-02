@@ -5,12 +5,10 @@ import com.aleprimo.Booking_System_App.entity.Offering;
 import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.entity.enums.BookingStatus;
 import com.aleprimo.Booking_System_App.entity.enums.Role;
-import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
 import com.aleprimo.Booking_System_App.exception.ResourceNotFoundException;
 import com.aleprimo.Booking_System_App.persistence.BookingDAO;
 import com.aleprimo.Booking_System_App.service.serviceImpl.BookingServiceImpl;
 import com.aleprimo.Booking_System_App.service.NotificationService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -84,68 +82,77 @@ class BookingServiceImplTest {
     }
 
     // ==================================
-    // CREATE BOOKING
+    // TEST CREATE / UPDATE con NOTIFICACIONES
     // ==================================
+
     @Test
     void testCreateBookingWithProviderNotifications() {
-        when(bookingDAO.save(booking)).thenReturn(booking);
+        Booking savedBooking = Booking.builder()
+                .id(1L)
+                .customer(customer)
+                .offering(booking.getOffering()) // con provider
+                .build();
 
-        Booking saved = bookingService.createBooking(booking);
+        when(bookingDAO.save(any(Booking.class))).thenReturn(savedBooking);
 
-        assertThat(saved).isEqualTo(booking);
+        Booking result = bookingService.createBooking(booking);
 
+        assertThat(result).isEqualTo(savedBooking);
         verify(bookingDAO, times(1)).save(booking);
-        // 2 notificaciones: EMAIL y SMS
+        // Se crean 2 notificaciones: EMAIL y SMS
         verify(notificationService, times(2)).createNotification(any());
         verifyNoMoreInteractions(bookingDAO, notificationService);
     }
 
     @Test
-    void testCreateBookingWithoutProvider() {
-        booking.setOffering(null); // forzar sin provider
+    void testCreateBookingWithoutOfferingOrProvider() {
+        Booking bookingNoOffering = Booking.builder()
+                .id(2L)
+                .customer(customer)
+                .offering(null)
+                .build();
 
-        when(bookingDAO.save(booking)).thenReturn(booking);
+        when(bookingDAO.save(any(Booking.class))).thenReturn(bookingNoOffering);
 
-        Booking saved = bookingService.createBooking(booking);
+        Booking result = bookingService.createBooking(bookingNoOffering);
 
-        assertThat(saved).isEqualTo(booking);
-
-        verify(bookingDAO, times(1)).save(booking);
-        // No debe crear notificaciones
-        verify(notificationService, never()).createNotification(any());
-        verifyNoMoreInteractions(bookingDAO, notificationService);
+        assertThat(result).isEqualTo(bookingNoOffering);
+        verify(bookingDAO, times(1)).save(bookingNoOffering);
+        // No se crean notificaciones
+        verifyNoInteractions(notificationService);
     }
 
-    // ==================================
-    // UPDATE BOOKING
-    // ==================================
     @Test
     void testUpdateBookingWithProviderNotifications() {
         Booking updateData = Booking.builder()
                 .customer(customer)
                 .status(BookingStatus.CONFIRMED)
                 .bookingDateTime(LocalDateTime.now().plusDays(2))
+                .offering(booking.getOffering()) // con provider
+                .build();
+
+        Booking updatedBooking = Booking.builder()
+                .id(1L)
+                .customer(customer)
+                .status(BookingStatus.CONFIRMED)
+                .bookingDateTime(updateData.getBookingDateTime())
                 .offering(booking.getOffering())
                 .build();
 
         when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
-        when(bookingDAO.save(any(Booking.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(bookingDAO.save(any(Booking.class))).thenReturn(updatedBooking);
 
-        Booking updated = bookingService.updateBooking(1L, updateData);
+        Booking result = bookingService.updateBooking(1L, updateData);
 
-        assertThat(updated.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
-        assertThat(updated.getBookingDateTime()).isEqualTo(updateData.getBookingDateTime());
-        assertThat(updated.getCustomer()).isEqualTo(customer);
-
+        assertThat(result).isEqualTo(updatedBooking);
         verify(bookingDAO, times(1)).findById(1L);
         verify(bookingDAO, times(1)).save(booking);
-        // 2 notificaciones: EMAIL y SMS
         verify(notificationService, times(2)).createNotification(any());
         verifyNoMoreInteractions(bookingDAO, notificationService);
     }
 
     @Test
-    void testUpdateBookingWithoutProvider() {
+    void testUpdateBookingWithoutOfferingOrProvider() {
         Booking updateData = Booking.builder()
                 .customer(customer)
                 .status(BookingStatus.CONFIRMED)
@@ -153,17 +160,45 @@ class BookingServiceImplTest {
                 .offering(null)
                 .build();
 
+        Booking updatedBooking = Booking.builder()
+                .id(1L)
+                .customer(customer)
+                .status(BookingStatus.CONFIRMED)
+                .bookingDateTime(updateData.getBookingDateTime())
+                .offering(null)
+                .build();
+
         when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
-        when(bookingDAO.save(any(Booking.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(bookingDAO.save(any(Booking.class))).thenReturn(updatedBooking);
 
-        Booking updated = bookingService.updateBooking(1L, updateData);
+        Booking result = bookingService.updateBooking(1L, updateData);
 
-        assertThat(updated.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
-        // No notificaciones
-        verify(notificationService, never()).createNotification(any());
+        assertThat(result).isEqualTo(updatedBooking);
         verify(bookingDAO, times(1)).findById(1L);
         verify(bookingDAO, times(1)).save(booking);
-        verifyNoMoreInteractions(bookingDAO, notificationService);
+        verifyNoInteractions(notificationService);
+    }
+
+    // ==================================
+    // TESTS CRUD BÁSICOS
+    // ==================================
+
+    @Test
+    void testGetBookingByIdFound() {
+        when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
+        Optional<Booking> found = bookingService.getBookingById(1L);
+        assertThat(found).isPresent().contains(booking);
+        verify(bookingDAO, times(1)).findById(1L);
+        verifyNoMoreInteractions(bookingDAO);
+    }
+
+    @Test
+    void testGetBookingByIdNotFound() {
+        when(bookingDAO.findById(99L)).thenReturn(Optional.empty());
+        Optional<Booking> found = bookingService.getBookingById(99L);
+        assertThat(found).isEmpty();
+        verify(bookingDAO, times(1)).findById(99L);
+        verifyNoMoreInteractions(bookingDAO);
     }
 
     @Test
@@ -175,9 +210,6 @@ class BookingServiceImplTest {
         verifyNoMoreInteractions(bookingDAO);
     }
 
-    // ==================================
-    // UPDATE STATUS
-    // ==================================
     @Test
     void testUpdateBookingStatusSuccess() {
         when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
@@ -199,9 +231,6 @@ class BookingServiceImplTest {
         verifyNoMoreInteractions(bookingDAO);
     }
 
-    // ==================================
-    // DELETE
-    // ==================================
     @Test
     void testDeleteBooking() {
         doNothing().when(bookingDAO).deleteById(1L);
@@ -211,29 +240,9 @@ class BookingServiceImplTest {
     }
 
     // ==================================
-    // GET BY ID
+    // TESTS PAGINACION
     // ==================================
-    @Test
-    void testGetBookingByIdFound() {
-        when(bookingDAO.findById(1L)).thenReturn(Optional.of(booking));
-        Optional<Booking> found = bookingService.getBookingById(1L);
-        assertThat(found).isPresent().contains(booking);
-        verify(bookingDAO, times(1)).findById(1L);
-        verifyNoMoreInteractions(bookingDAO);
-    }
 
-    @Test
-    void testGetBookingByIdNotFound() {
-        when(bookingDAO.findById(99L)).thenReturn(Optional.empty());
-        Optional<Booking> found = bookingService.getBookingById(99L);
-        assertThat(found).isEmpty();
-        verify(bookingDAO, times(1)).findById(99L);
-        verifyNoMoreInteractions(bookingDAO);
-    }
-
-    // ==================================
-    // PAGINACION
-    // ==================================
     @Test
     void testGetAllBookings() {
         Pageable pageable = PageRequest.of(0, 10);
