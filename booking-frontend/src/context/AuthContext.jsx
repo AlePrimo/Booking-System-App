@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../api/axiosClient";
-import jwtDecode from "jwt-decode"; // ✅ sin llaves
+import {jwtDecode} from "jwt-decode"; // ✅ sin llaves
 
 const AuthContext = createContext();
 
