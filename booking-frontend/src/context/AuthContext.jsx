@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../api/axiosClient";
-import jwtDecode from "jwt-decode"; // npm install jwt-decode
+import jwtDecode from "jwt-decode"; // ✅ sin llaves
 
 const AuthContext = createContext();
 
@@ -11,22 +11,27 @@ export function AuthProvider({ children }) {
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const [tokenExpiryTime, setTokenExpiryTime] = useState(null);
 
-  // 🔹 Check automático de expiración
+  // ✅ Restaurar token guardado en localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+      try {
+        const decoded = jwtDecode(storedToken);
+        setTokenExpiryTime(decoded.exp);
+      } catch (err) {
+        console.error("Error decodificando token:", err);
+      }
+    }
+  }, []);
+
+  // 🔹 Verifica expiración
   useEffect(() => {
     if (!token || !tokenExpiryTime) return;
-
     const now = Date.now();
     const timeout = tokenExpiryTime * 1000 - now;
-
-    if (timeout <= 0) {
-      handleSessionExpired();
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      handleSessionExpired();
-    }, timeout);
-
+    if (timeout <= 0) return handleSessionExpired();
+    const timer = setTimeout(handleSessionExpired, timeout);
     return () => clearTimeout(timer);
   }, [token, tokenExpiryTime]);
 
@@ -36,57 +41,64 @@ export function AuthProvider({ children }) {
     setRefreshToken(null);
     setTokenExpiryTime(null);
     setIsSessionExpired(true);
+    localStorage.removeItem("token"); // ✅ limpia también localStorage
   };
 
-  const login = async (email, password) => {
-    const res = await api.post("/auth/login", { email, password });
+const login = async (email, password) => {
+  const res = await api.post("/auth/login", { email, password });
 
-    const t = res.data.token;
-    const decoded = jwtDecode(t);
-    setTokenExpiryTime(decoded.exp); // guarda timestamp de expiración
+  const t = res.data.token;
+  const decoded = jwtDecode(t);
+  setTokenExpiryTime(decoded.exp);
 
-    // Obtener usuario completo por email
-    const userRes = await api.get(`/api/users/email/${email}`, {
-      headers: { Authorization: `Bearer ${t}` },
-    });
+  // 🔹 Guardar el token en localStorage para que axios lo use
+  localStorage.setItem("accessToken", t);
+  if (res.data.refreshToken) {
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+  }
 
-    const userData = {
-      id: userRes.data.id,
-      name: userRes.data.name,
-      email: email,
-      role: res.data.role,
-    };
+  // Obtener usuario completo por email
+  const userRes = await api.get(`/api/users/email/${email}`, {
+    headers: { Authorization: `Bearer ${t}` },
+  });
 
-    setUser(userData);
-    setToken(t);
-    setRefreshToken(res.data.refreshToken);
-    setIsSessionExpired(false);
-
-    return userData;
+  const userData = {
+    id: userRes.data.id,
+    name: userRes.data.name,
+    email: email,
+    role: res.data.role,
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    setRefreshToken(null);
-    setTokenExpiryTime(null);
-    setIsSessionExpired(false);
-  };
+  setUser(userData);
+  setToken(t);
+  setRefreshToken(res.data.refreshToken);
+  setIsSessionExpired(false);
 
-  const closeSessionAlert = () => {
-    setIsSessionExpired(false);
-  };
+  return userData;
+};
+
+
+const logout = () => {
+  setUser(null);
+  setToken(null);
+  setRefreshToken(null);
+  setTokenExpiryTime(null);
+  setIsSessionExpired(false);
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+};
+
+
+  const closeSessionAlert = () => setIsSessionExpired(false);
 
   const ensureUser = async () => {
     if (!user || !token) return null;
-
     try {
       const res = await api.get(`/api/users/email/${user.email}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     } catch (err) {
-      // Si devuelve 401/403, la sesión expiró
       handleSessionExpired();
       return null;
     }
