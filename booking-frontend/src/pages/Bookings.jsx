@@ -1,92 +1,83 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getBookingsByCustomer } from "../api/bookingService";
+import { getOfferingById } from "../api/offeringService";
 import { useNavigate } from "react-router-dom";
 
 export default function Bookings() {
   const [bookings, setBookings] = useState([]);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
   const { user, token } = useAuth();
   const navigate = useNavigate();
-  const pageSize = 5; // Cantidad de reservas por página
-
-  const fetchBookings = async (pageNumber = 0) => {
-    if (!user || !token) return;
-
-    try {
-      const res = await getBookingsByCustomer(user.id, pageNumber, pageSize, token);
-      const content = res.data.content || res.data;
-
-      setBookings(content);
-      if (res.data.totalPages !== undefined) {
-        setTotalPages(res.data.totalPages);
-      } else {
-        setTotalPages(1);
-      }
-    } catch (err) {
-      console.error("Error al obtener reservas:", err);
-    }
-  };
 
   useEffect(() => {
-    fetchBookings(page);
-  }, [user, token, page]);
+    if (!user || !token) return;
+    fetchBookings();
+  }, [user, token]);
 
-  const handleNext = () => {
-    if (page + 1 < totalPages) setPage(page + 1);
-  };
+  const fetchBookings = async () => {
+    try {
+      // 🔹 Usamos el endpoint específico del cliente
+      const res = await getBookingsByCustomer(user.id, 0, 10, token);
+      const bookingsData = res.data.content || res.data;
 
-  const handlePrev = () => {
-    if (page > 0) setPage(page - 1);
+      const bookingsWithDetails = await Promise.all(
+        bookingsData.map(async (b) => {
+          try {
+            const offeringRes = await getOfferingById(b.offeringId, token);
+            const offering = offeringRes.data;
+            return {
+              ...b,
+              offeringName: offering.name,
+              offeringDescription: offering.description,
+              providerName: offering.provider?.name || "Sin proveedor",
+            };
+          } catch (err) {
+            console.error("Error fetching offering:", err);
+            return b;
+          }
+        })
+      );
+
+      setBookings(bookingsWithDetails);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+    }
   };
 
   return (
     <div className="p-6">
       <button
         onClick={() => navigate("/dashboard-customer")}
-        className="px-3 py-1 border rounded mb-4"
+        className="px-3 py-1 border rounded mb-6 hover:bg-gray-200 transition"
       >
         ← Volver al Dashboard
       </button>
 
-      <h2 className="text-2xl font-bold mb-4">Mis Reservas</h2>
+      <h2 className="text-3xl font-bold mb-6 text-indigo-700">Mis Reservas</h2>
 
-      {bookings.length === 0 ? (
-        <p>No tienes reservas aún.</p>
-      ) : (
-        <>
-          <ul className="space-y-2 mb-4">
-            {bookings.map((b) => (
-              <li key={b.id} className="border p-2 rounded">
-                <strong>Reserva #{b.id}</strong> - Servicio {b.offeringId} - Estado:{" "}
-                {b.status} - Fecha: {new Date(b.bookingDateTime).toLocaleString()}
-              </li>
-            ))}
-          </ul>
-
-          {/* Botones de paginación */}
-          <div className="flex justify-between">
-            <button
-              onClick={handlePrev}
-              disabled={page === 0}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Anterior
-            </button>
-            <span>
-              Página {page + 1} de {totalPages}
-            </span>
-            <button
-              onClick={handleNext}
-              disabled={page + 1 >= totalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Siguiente
-            </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {bookings.map((b) => (
+          <div
+            key={b.id}
+            className="border shadow rounded-lg p-4 hover:shadow-lg transition bg-white"
+          >
+            <h3 className="text-xl font-semibold text-indigo-600">
+              Reserva #{b.id} - {b.status}
+            </h3>
+            <p className="text-gray-700 mt-1">
+              <strong>Servicio:</strong> {b.offeringName || b.offeringId}
+            </p>
+            <p className="text-gray-600">{b.offeringDescription}</p>
+            <p className="text-gray-700 mt-1">
+              <strong>Proveedor:</strong> {b.providerName || "Desconocido"}
+            </p>
+            <p className="text-gray-500 mt-1">
+              <strong>Fecha:</strong>{" "}
+              {new Date(b.bookingDateTime).toLocaleString()}
+            </p>
           </div>
-        </>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
