@@ -1,5 +1,6 @@
 import api from "./axiosClient";
 
+// Obtener todas las reservas (admin o listado general)
 export const getBookings = (page = 0, size = 10, token) =>
   api.get(`/api/bookings?page=${page}&size=${size}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -24,3 +25,10 @@ export const deleteBooking = (id, token) =>
   api.delete(`/api/bookings/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+// ✅ Nuevo método: reservas de un customer
+export const getBookingsByCustomer = (customerId, page = 0, size = 10, token) =>
+  api.get(`/api/bookings/customer/${customerId}?page=${page}&size=${size}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
