@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getBookingsByCustomer } from "../services/api/bookingService";
+import { getBookingsByCustomer } from "../api/bookingService";
 import { useNavigate } from "react-router-dom";
 
 export default function Bookings() {
