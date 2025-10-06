@@ -37,30 +37,38 @@ export default function Bookings() {
       );
 
       // Traer info de offering y proveedor para cada reserva
-      const bookingsWithDetails = await Promise.all(
-        clientBookings.map(async (b) => {
-          try {
-            const offeringRes = await getOfferingById(b.offeringId, token);
-            const offering = offeringRes.data;
+// Traer info de offering y proveedor para cada reserva
+const bookingsWithDetails = await Promise.all(
+  clientBookings.map(async (b) => {
+    try {
+      const offeringRes = await getOfferingById(b.offeringId, token);
+      const offering = offeringRes.data;
 
-            let providerName = "Desconocido";
-            if (offering.provider) {
-              const providerRes = await getUserById(offering.provider, token);
-              providerName = providerRes.data.name;
-            }
+      let providerName = "Desconocido";
 
-            return {
-              ...b,
-              offeringName: offering.name,
-              offeringDescription: offering.description,
-              providerName,
-            };
-          } catch (err) {
-            console.error("Error fetching offering or provider:", err);
-            return b;
-          }
-        })
-      );
+      // 🔹 Detectar correctamente el ID del proveedor
+      const providerId =
+        offering.providerId ||
+        (offering.provider ? offering.provider.id : null);
+
+      if (providerId) {
+        const providerRes = await getUserById(providerId, token);
+        providerName = providerRes.data.name;
+      }
+
+      return {
+        ...b,
+        offeringName: offering.name,
+        offeringDescription: offering.description,
+        providerName,
+      };
+    } catch (err) {
+      console.error("Error fetching offering or provider:", err);
+      return b;
+    }
+  })
+);
+
 
       setBookings(bookingsWithDetails);
     } catch (err) {
