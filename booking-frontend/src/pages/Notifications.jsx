@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getNotificationsByUser, markAsRead, deleteNotification } from "../api/notificationService";
+import { getNotifications, markAsRead, deleteNotification } from "../api/notificationService";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -15,8 +15,12 @@ export default function Notifications() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await getNotificationsByUser(user.id, 0, 20, token);
-      setNotifications(res.data.content || res.data);
+      const res = await getNotifications(0, 50, token); // Trae todas
+      // Filtrar solo las del usuario logueado
+      const filtered = (res.data.content || res.data).filter(
+        (n) => n.recipientId === user.id
+      );
+      setNotifications(filtered);
     } catch (err) {
       console.error("Error fetching notifications:", err);
     }
@@ -25,9 +29,9 @@ export default function Notifications() {
   const handleMarkAsRead = async (id) => {
     try {
       await markAsRead(id, token);
-      fetchNotifications(); // recarga la lista
+      fetchNotifications();
     } catch (err) {
-      console.error("Error marking notification as read:", err);
+      console.error(err);
     }
   };
 
@@ -36,16 +40,13 @@ export default function Notifications() {
       await deleteNotification(id, token);
       fetchNotifications();
     } catch (err) {
-      console.error("Error deleting notification:", err);
+      console.error(err);
     }
   };
 
   return (
     <div className="p-6">
-      <button
-        onClick={() => navigate("/dashboard-customer")}
-        className="px-4 py-2 mb-6 rounded bg-gray-200 hover:bg-gray-300 transition"
-      >
+      <button onClick={() => navigate("/dashboard-customer")} className="px-4 py-2 mb-6 rounded bg-gray-200 hover:bg-gray-300 transition">
         ← Volver al Dashboard
       </button>
 
@@ -56,31 +57,18 @@ export default function Notifications() {
       ) : (
         <ul className="space-y-4">
           {notifications.map((n) => (
-            <li
-              key={n.id}
-              className={`p-4 rounded-lg shadow-md flex justify-between items-center transition ${
-                n.read ? "bg-gray-100" : "bg-yellow-50"
-              }`}
-            >
+            <li key={n.id} className={`p-4 rounded-lg shadow-md flex justify-between items-center ${n.read ? "bg-gray-100" : "bg-yellow-50"}`}>
               <div>
                 <p className="font-semibold">{n.message}</p>
-                <p className="text-sm text-gray-500">
-                  Tipo: {n.type} | Enviado: {n.sent ? "Sí" : "No"}
-                </p>
+                <p className="text-sm text-gray-500">Tipo: {n.type}</p>
               </div>
               <div className="flex gap-2">
                 {!n.read && (
-                  <button
-                    onClick={() => handleMarkAsRead(n.id)}
-                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                  >
+                  <button onClick={() => handleMarkAsRead(n.id)} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition">
                     Marcar como leído
                   </button>
                 )}
-                <button
-                  onClick={() => handleDelete(n.id)}
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                >
+                <button onClick={() => handleDelete(n.id)} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
                   Eliminar
                 </button>
               </div>
@@ -91,4 +79,5 @@ export default function Notifications() {
     </div>
   );
 }
+
 
