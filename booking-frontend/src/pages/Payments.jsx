@@ -5,7 +5,8 @@ import { useAuth } from "../context/AuthContext";
 import { getBookings } from "../api/bookingService";
 import { getOfferingById } from "../api/offeringService";
 import { getUserById } from "../api/userService";
-
+import { createPayment } from "../api/paymentService";
+import { createNotification } from "../api/notificationService";
 Modal.setAppElement("#root");
 
 const Payments = () => {
@@ -82,13 +83,43 @@ const Payments = () => {
     setIsModalOpen(true);
   };
 
-  // 🔹 Confirmar pago (simulado)
-  const handleConfirmPayment = () => {
-    alert(`Pago confirmado para la reserva #${selectedBooking.id}`);
+const handleConfirmPayment = async () => {
+  if (!selectedBooking) {
+    alert("Seleccioná una reserva primero.");
+    return;
+  }
+
+  try {
+    // 1) Payload para API de pagos (según PaymentRequestDTO en backend)
+    const paymentPayload = {
+      bookingId: selectedBooking.id,
+      amount: Number(selectedBooking.offeringPrice), // o string "1500.00"
+    };
+
+    // Persistir pago
+    const paymentResp = await createPayment(paymentPayload, token);
+    console.log("Pago creado:", paymentResp.data);
+
+    // 2) Crear notificación para el proveedor (shape requerido por NotificationRequestDTO)
+    const notifPayload = {
+      message: `Pago recibido por la reserva #${selectedBooking.id}: $${selectedBooking.offeringPrice}`,
+      recipientId: selectedBooking.providerId,
+      type: "EMAIL", // o "SMS" si preferís
+    };
+
+    await createNotification(notifPayload, token);
+
+    alert(`Pago registrado y notificación enviada al proveedor.`);
     setIsModalOpen(false);
     setSelectedBookingId("");
     setCardNumber("");
-  };
+    // opcional: refresh de lista de pagos/reservas
+    await fetchBookings();
+  } catch (err) {
+    console.error("Error al confirmar pago:", err);
+    alert("Ocurrió un error al procesar el pago. Revisa la consola.");
+  }
+};
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 flex flex-col items-center">
