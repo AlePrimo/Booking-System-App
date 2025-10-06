@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { FaCalendarAlt, FaBell, FaServicestack } from "react-icons/fa"; // Íconos
+import { FaCalendarAlt, FaBell, FaServicestack, FaMoneyBillWave } from "react-icons/fa"; // Íconos
 
 export default function DashboardCustomer() {
   const { user, logout } = useAuth();
@@ -25,35 +25,40 @@ export default function DashboardCustomer() {
       icon: <FaServicestack size={30} className="text-green-500" />,
       path: "/servicios",
     },
+    {
+      title: "Pagos",
+      description: "Consulta y realiza pagos de tus reservas.",
+      icon: <FaMoneyBillWave size={30} className="text-purple-600" />,
+      path: "/payments",
+    },
   ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* HEADER */}
-<header className="flex justify-between items-center px-6 py-4 bg-gray-100">
-  <h1 className="text-5xl font-bold text-indigo-600">BookingApp</h1>
-  {user && (
-    <div className="flex items-center gap-4">
-      <span className="font-Medium">
-        Bienvenido, {user.name} ({user.email})
-      </span>
-      <button
-        onClick={logout}
-        className="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition"
-      >
-        Logout
-      </button>
-    </div>
-  )}
-</header>
-
+      <header className="flex justify-between items-center px-6 py-4 bg-gray-100 shadow-sm">
+        <h1 className="text-5xl font-bold text-indigo-600">BookingApp</h1>
+        {user && (
+          <div className="flex items-center gap-4">
+            <span className="font-medium">
+              Bienvenido, {user.name} ({user.email})
+            </span>
+            <button
+              onClick={logout}
+              className="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </header>
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 container mx-auto px-4 py-8">
         <h2 className="text-4xl font-bold text-center mb-12">Panel de Cliente</h2>
 
         {/* TARJETAS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {cards.map((card) => (
             <div
               key={card.title}
