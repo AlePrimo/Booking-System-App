@@ -5,11 +5,14 @@ import com.aleprimo.Booking_System_App.dto.PageResponse;
 import com.aleprimo.Booking_System_App.dto.booking.BookingRequestDTO;
 import com.aleprimo.Booking_System_App.dto.booking.BookingResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Booking;
+import com.aleprimo.Booking_System_App.entity.Notification;
 import com.aleprimo.Booking_System_App.entity.Offering;
 import com.aleprimo.Booking_System_App.entity.User;
 import com.aleprimo.Booking_System_App.entity.enums.BookingStatus;
+import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
 import com.aleprimo.Booking_System_App.mapper.booking.BookingMapper;
 import com.aleprimo.Booking_System_App.service.BookingService;
+import com.aleprimo.Booking_System_App.service.NotificationService;
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import com.aleprimo.Booking_System_App.service.UserService;
 import com.aleprimo.Booking_System_App.util.PageResponseUtil;
@@ -34,21 +37,48 @@ public class BookingController {
     private final UserService userService;
     private final OfferingService offeringService;
     private final BookingMapper bookingMapper;
-
+   private final NotificationService notificationService;
     @PostMapping
     @Operation(summary = "Crear una reserva",
-               description = "Crea una reserva asignando cliente, servicio y fecha/hora",
-               responses = {
-                   @ApiResponse(responseCode = "200", description = "Reserva creada correctamente"),
-                   @ApiResponse(responseCode = "400", description = "Error de validación")
-               })
+            description = "Crea una reserva asignando cliente, servicio y fecha/hora, y genera notificaciones para el cliente y el proveedor",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Reserva creada correctamente y notificaciones enviadas"),
+                    @ApiResponse(responseCode = "400", description = "Error de validación")
+            })
     public ResponseEntity<BookingResponseDTO> createBooking(@Valid @RequestBody BookingRequestDTO dto) {
         User customer = userService.getUserById(dto.getCustomerId()).orElseThrow();
         Offering offering = offeringService.getOfferingById(dto.getOfferingId()).orElseThrow();
 
         Booking booking = bookingService.createBooking(bookingMapper.toEntity(dto, customer, offering));
+
+        User provider = offering.getProvider();
+
+
+        Notification notificationToProvider = Notification.builder()
+                .type(NotificationType.EMAIL)
+                .message("Tienes una nueva reserva de " +
+                        customer.getName() +
+                        " para el servicio " + offering.getDescription() +
+                        " en fecha " + dto.getBookingDateTime())
+                .recipient(provider)
+                .sent(false)
+                .build();
+        notificationService.createNotification(notificationToProvider);
+
+
+        Notification notificationToCustomer = Notification.builder()
+                .type(NotificationType.EMAIL)
+                .message("Has reservado el servicio " + offering.getDescription() +
+                        " con " + provider.getName() +
+                        " para la fecha " + dto.getBookingDateTime())
+                .recipient(customer)
+                .sent(false)
+                .build();
+        notificationService.createNotification(notificationToCustomer);
+
         return ResponseEntity.ok(bookingMapper.toDTO(booking));
     }
+
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar una reserva",

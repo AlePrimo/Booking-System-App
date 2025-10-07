@@ -37,10 +37,10 @@ public class PaymentController {
     private final NotificationService notificationService;
 
     @PostMapping
-    @Operation(summary = "Crear un pago y notificar al proveedor",
-            description = "Registra un pago asociado a una reserva y notifica al proveedor correspondiente",
+    @Operation(summary = "Crear un pago y notificar al proveedor y al cliente",
+            description = "Registra un pago asociado a una reserva, notifica al proveedor correspondiente y también al cliente que realizó el pago",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Pago creado correctamente y notificación enviada"),
+                    @ApiResponse(responseCode = "200", description = "Pago creado correctamente y notificaciones enviadas"),
                     @ApiResponse(responseCode = "400", description = "Error de validación")
             })
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
@@ -48,34 +48,46 @@ public class PaymentController {
         Booking booking = bookingService.getBookingById(dto.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-
         paymentService.getPaymentByBookingId(dto.getBookingId())
                 .ifPresent(p -> {
                     throw new RuntimeException("Ya existe un pago registrado para esta reserva");
                 });
 
-
         Payment payment = paymentMapper.toEntity(dto, booking);
         payment.setStatus(PaymentStatus.PAID);
         Payment savedPayment = paymentService.createPayment(payment);
 
-
         User provider = booking.getOffering().getProvider();
+        User customer = booking.getCustomer();
 
-        Notification notification = Notification.builder()
-                .type(NotificationType.EMAIL) // obligatorio, no puede ser null
+
+        Notification notificationToProvider = Notification.builder()
+                .type(NotificationType.EMAIL)
                 .message("Has recibido un nuevo pago de " +
-                        booking.getCustomer().getName() +
+                        customer.getName() +
                         " por la reserva #" + booking.getId() +
                         " por un monto de $" + dto.getAmount())
                 .recipient(provider)
                 .sent(false)
                 .build();
 
-        notificationService.createNotification(notification);
+        notificationService.createNotification(notificationToProvider);
+
+
+        Notification notificationToCustomer = Notification.builder()
+                .type(NotificationType.EMAIL)
+                .message("Has realizado un pago de $" + dto.getAmount() +
+                        " por la reserva #" + booking.getId() +
+                        " del servicio " + booking.getOffering().getDescription())
+                .recipient(customer)
+                .sent(false)
+                .build();
+
+        notificationService.createNotification(notificationToCustomer);
 
         return ResponseEntity.ok(paymentMapper.toDTO(savedPayment));
     }
+
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un pago")
