@@ -14,7 +14,6 @@ public class PaymentMapper {
         return Payment.builder()
                 .amount(dto.getAmount())
                 .method(dto.getMethod())
-                .status(dto.getStatus())
                 .booking(booking)
                 .build();
     }

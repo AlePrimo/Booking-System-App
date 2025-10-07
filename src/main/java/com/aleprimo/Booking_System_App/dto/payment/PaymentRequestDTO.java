@@ -28,8 +28,5 @@ public class PaymentRequestDTO {
     @NotNull(message = "El método de pago es obligatorio")
     private PaymentMethod method;
 
-    @Schema(description = "Estado del pago", example = "PAID")
-    @NotNull(message = "El estado del pago es obligatorio")
-    private PaymentStatus status;
 
 }

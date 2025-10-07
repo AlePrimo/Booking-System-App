@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import { getOfferingById } from "../api/offeringService";
 import { getUserById } from "../api/userService";
 import { createPayment } from "../api/paymentService";
 import { createNotification } from "../api/notificationService";
+
 Modal.setAppElement("#root");
 
 const Payments = () => {
@@ -19,7 +21,7 @@ const Payments = () => {
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("credit-card");
+  const [paymentMethod, setPaymentMethod] = useState("CREDIT_CARD");
   const [cardNumber, setCardNumber] = useState("");
 
   // 🔹 Cargar reservas del usuario logueado
@@ -35,8 +37,11 @@ const Payments = () => {
       const data = res.data.content || res.data;
       const clientBookings = data.filter((b) => b.customerId === user.id);
 
+      // 🔹 Filtrar reservas sin pago
+      const bookingsWithoutPayment = clientBookings.filter((b) => !b.payment);
+
       const enriched = await Promise.all(
-        clientBookings.map(async (b) => {
+        bookingsWithoutPayment.map(async (b) => {
           try {
             const offeringRes = await getOfferingById(b.offeringId, token);
             const offering = offeringRes.data;
@@ -57,6 +62,7 @@ const Payments = () => {
               offeringDescription: offering.description,
               offeringPrice: offering.price,
               providerName,
+              providerId,
             };
           } catch {
             return b;
@@ -83,47 +89,47 @@ const Payments = () => {
     setIsModalOpen(true);
   };
 
-const handleConfirmPayment = async () => {
-  if (!selectedBooking) {
-    alert("Seleccioná una reserva primero.");
-    return;
-  }
+  // 🔹 Confirmar pago
+  const handleConfirmPayment = async () => {
+    if (!selectedBooking) {
+      alert("Seleccioná una reserva primero.");
+      return;
+    }
 
-  try {
-    // 1) Payload para API de pagos (según PaymentRequestDTO en backend)
-    const paymentPayload = {
-      bookingId: selectedBooking.id,
-      amount: Number(selectedBooking.offeringPrice), // o string "1500.00"
-    };
+    try {
+      // Payload para API
+      const paymentPayload = {
+        bookingId: selectedBooking.id,
+        amount: Number(selectedBooking.offeringPrice),
+        method: paymentMethod,
+      };
 
-    // Persistir pago
-    const paymentResp = await createPayment(paymentPayload, token);
-    console.log("Pago creado:", paymentResp.data);
+      // Persistir pago
+      const paymentResp = await createPayment(paymentPayload, token);
+      console.log("Pago creado:", paymentResp.data);
 
-    // 2) Crear notificación para el proveedor (shape requerido por NotificationRequestDTO)
-    const notifPayload = {
-      message: `Pago recibido por la reserva #${selectedBooking.id}: $${selectedBooking.offeringPrice}`,
-      recipientId: selectedBooking.providerId,
-      type: "EMAIL", // o "SMS" si preferís
-    };
+      // Crear notificación al proveedor
+      const notifPayload = {
+        message: `Pago recibido por la reserva #${selectedBooking.id}: $${selectedBooking.offeringPrice}`,
+        recipientId: selectedBooking.providerId,
+        type: "EMAIL",
+      };
 
-    await createNotification(notifPayload, token);
+      await createNotification(notifPayload, token);
 
-    alert(`Pago registrado y notificación enviada al proveedor.`);
-    setIsModalOpen(false);
-    setSelectedBookingId("");
-    setCardNumber("");
-    // opcional: refresh de lista de pagos/reservas
-    await fetchBookings();
-  } catch (err) {
-    console.error("Error al confirmar pago:", err);
-    alert("Ocurrió un error al procesar el pago. Revisa la consola.");
-  }
-};
+      alert(`Pago registrado y notificación enviada al proveedor.`);
+      setIsModalOpen(false);
+      setSelectedBookingId("");
+      setCardNumber("");
+      await fetchBookings(); // refrescar lista
+    } catch (err) {
+      console.error("Error al confirmar pago:", err);
+      alert("Ocurrió un error al procesar el pago. Revisa la consola.");
+    }
+  };
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 flex flex-col items-center">
-      {/* Botón Volver */}
       <div className="self-start mb-4">
         <button
           onClick={() => navigate("/dashboard-customer")}
@@ -180,7 +186,6 @@ const handleConfirmPayment = async () => {
         )}
       </div>
 
-      {/* 🔹 Modal de pago */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
@@ -216,14 +221,13 @@ const handleConfirmPayment = async () => {
                 onChange={(e) => setPaymentMethod(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
               >
-                <option value="credit-card">Tarjeta de crédito</option>
-                <option value="debit-card">Tarjeta de débito</option>
-                <option value="transfer">Transferencia bancaria</option>
+                <option value="CREDIT_CARD">Tarjeta de crédito</option>
+                <option value="CASH">Efectivo</option>
+                <option value="PAYPAL">PayPal</option>
               </select>
             </div>
 
-            {(paymentMethod === "credit-card" ||
-              paymentMethod === "debit-card") && (
+            {(paymentMethod === "CREDIT_CARD") && (
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-1">
                   Número de tarjeta
@@ -260,6 +264,7 @@ const handleConfirmPayment = async () => {
 };
 
 export default Payments;
+
 
 
 

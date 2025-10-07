@@ -44,8 +44,15 @@ public class PaymentController {
                     @ApiResponse(responseCode = "400", description = "Error de validación")
             })
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
+
         Booking booking = bookingService.getBookingById(dto.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+
+        paymentService.getPaymentByBookingId(dto.getBookingId())
+                .ifPresent(p -> {
+                    throw new RuntimeException("Ya existe un pago registrado para esta reserva");
+                });
 
 
         Payment payment = paymentMapper.toEntity(dto, booking);
@@ -55,9 +62,8 @@ public class PaymentController {
 
         User provider = booking.getOffering().getProvider();
 
-
         Notification notification = Notification.builder()
-                .type(NotificationType.EMAIL)
+                .type(NotificationType.EMAIL) // obligatorio, no puede ser null
                 .message("Has recibido un nuevo pago de " +
                         booking.getCustomer().getName() +
                         " por la reserva #" + booking.getId() +
@@ -70,6 +76,7 @@ public class PaymentController {
 
         return ResponseEntity.ok(paymentMapper.toDTO(savedPayment));
     }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un pago")
     public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
