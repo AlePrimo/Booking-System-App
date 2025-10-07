@@ -140,6 +140,7 @@ class PaymentControllerTest {
         when(paymentMapper.toEntity(any(PaymentRequestDTO.class), any(Booking.class))).thenReturn(payment);
         when(paymentService.createPayment(any(Payment.class))).thenReturn(payment);
         when(paymentMapper.toDTO(any(Payment.class))).thenReturn(responseDTO);
+        when(notificationService.createNotification(any())).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/payments")
                         .with(csrf())
