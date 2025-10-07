@@ -13,10 +13,7 @@ import com.aleprimo.Booking_System_App.entity.enums.PaymentMethod;
 import com.aleprimo.Booking_System_App.entity.enums.PaymentStatus;
 import com.aleprimo.Booking_System_App.entity.enums.Role;
 import com.aleprimo.Booking_System_App.mapper.payment.PaymentMapper;
-import com.aleprimo.Booking_System_App.service.BookingService;
-import com.aleprimo.Booking_System_App.service.OfferingService;
-import com.aleprimo.Booking_System_App.service.PaymentService;
-import com.aleprimo.Booking_System_App.service.UserService;
+import com.aleprimo.Booking_System_App.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,6 +63,9 @@ class PaymentControllerTest {
 
     @MockitoBean
     private PaymentMapper paymentMapper;
+
+    @MockitoBean
+    private NotificationService notificationService;
 
     private Booking booking;
     private Payment payment;
@@ -124,6 +124,7 @@ class PaymentControllerTest {
         requestDTO = PaymentRequestDTO.builder()
                 .bookingId(1L)
                 .amount(BigDecimal.valueOf(2500))
+                .method(PaymentMethod.CASH)
                 .build();
 
         responseDTO = PaymentResponseDTO.builder()
