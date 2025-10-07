@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { getBookings } from "../api/bookingService";
 import { getOfferingById } from "../api/offeringService";
 import { getUserById } from "../api/userService";
-import { createPayment } from "../api/paymentService";
+import { createPayment, getPayments } from "../api/paymentService";
 import { createNotification } from "../api/notificationService";
 
 Modal.setAppElement("#root");
@@ -18,42 +17,57 @@ const Payments = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBookingId, setSelectedBookingId] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CREDIT_CARD");
   const [cardNumber, setCardNumber] = useState("");
 
-  // 🔹 Cargar reservas del usuario logueado
+  // 🔹 Cargar reservas y pagos del usuario logueado
   useEffect(() => {
     if (!user || !token) return;
-    fetchBookings();
+    fetchData();
   }, [user, token]);
 
-  const fetchBookings = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await getBookings(0, 50, token);
-      const data = res.data.content || res.data;
-      const clientBookings = data.filter((b) => b.customerId === user.id);
+      const bookingsRes = await getBookings(0, 50, token);
+      const bookingsData = bookingsRes.data.content || bookingsRes.data;
 
-      // 🔹 Filtrar reservas sin pago
-      const bookingsWithoutPayment = clientBookings.filter((b) => !b.payment);
+      const clientBookings = bookingsData.filter((b) => b.customerId === user.id);
+
+      // Obtener pagos existentes
+      const paymentsRes = await getPayments(0, 50, token);
+      const paymentsData = paymentsRes.data.content || paymentsRes.data;
+
+      // Filtrar pagos solo del usuario logueado
+      const userPayments = paymentsData.filter((p) =>
+        clientBookings.some((b) => b.id === p.bookingId)
+      );
+
+      setPayments(userPayments);
+
+      // Filtrar solo reservas no pagadas
+      const unpaidBookings = clientBookings.filter(
+        (b) => !userPayments.some((p) => p.bookingId === b.id)
+      );
 
       const enriched = await Promise.all(
-        bookingsWithoutPayment.map(async (b) => {
+        unpaidBookings.map(async (b) => {
           try {
             const offeringRes = await getOfferingById(b.offeringId, token);
             const offering = offeringRes.data;
 
             let providerName = "Desconocido";
             const providerId =
-              offering.providerId ||
-              (offering.provider ? offering.provider.id : null);
+              offering.providerId || (offering.provider ? offering.provider.id : null);
 
             if (providerId) {
               const providerRes = await getUserById(providerId, token);
               providerName = providerRes.data.name;
+              b.providerId = providerId; // guardo providerId para notificación
             }
 
             return {
@@ -62,7 +76,6 @@ const Payments = () => {
               offeringDescription: offering.description,
               offeringPrice: offering.price,
               providerName,
-              providerId,
             };
           } catch {
             return b;
@@ -72,11 +85,12 @@ const Payments = () => {
 
       setBookings(enriched);
     } catch (err) {
-      console.error("Error al traer reservas:", err);
+      console.error("Error al traer reservas o pagos:", err);
     } finally {
       setLoading(false);
     }
   };
+
 
   // 🔹 Abrir modal con la reserva seleccionada
   const handlePayment = () => {
@@ -97,20 +111,20 @@ const Payments = () => {
     }
 
     try {
-      // Payload para API
+      // 1) Payload para API de pagos (según PaymentRequestDTO en backend)
       const paymentPayload = {
         bookingId: selectedBooking.id,
         amount: Number(selectedBooking.offeringPrice),
-        method: paymentMethod,
+        method: paymentMethod, // 🔹 ahora obligatorio
       };
 
       // Persistir pago
       const paymentResp = await createPayment(paymentPayload, token);
       console.log("Pago creado:", paymentResp.data);
 
-      // Crear notificación al proveedor
+      // 2) Crear notificación para el proveedor
       const notifPayload = {
-        message: `Pago recibido por la reserva #${selectedBooking.id}: $${selectedBooking.offeringPrice}`,
+        message: `Has recibido un nuevo pago de ${user.name} por la reserva #${selectedBooking.id}: $${selectedBooking.offeringPrice}`,
         recipientId: selectedBooking.providerId,
         type: "EMAIL",
       };
@@ -118,10 +132,13 @@ const Payments = () => {
       await createNotification(notifPayload, token);
 
       alert(`Pago registrado y notificación enviada al proveedor.`);
+
       setIsModalOpen(false);
       setSelectedBookingId("");
       setCardNumber("");
-      await fetchBookings(); // refrescar lista
+
+      // Refrescar lista de reservas y pagos
+      await fetchData();
     } catch (err) {
       console.error("Error al confirmar pago:", err);
       alert("Ocurrió un error al procesar el pago. Revisa la consola.");
@@ -130,6 +147,7 @@ const Payments = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 flex flex-col items-center">
+      {/* Botón Volver */}
       <div className="self-start mb-4">
         <button
           onClick={() => navigate("/dashboard-customer")}
@@ -139,9 +157,25 @@ const Payments = () => {
         </button>
       </div>
 
+      {/* Lista de pagos realizados */}
+      {payments.length > 0 && (
+        <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-lg mb-6">
+          <h2 className="text-2xl font-bold mb-4 text-indigo-700 text-center">
+            Pagos realizados
+          </h2>
+          <ul className="space-y-2">
+            {payments.map((p) => (
+              <li key={p.id} className="border-b border-gray-200 pb-2">
+                Reserva #{p.bookingId} - Monto: ${p.amount} - Estado: {p.status}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-lg">
         <h1 className="text-3xl font-bold mb-6 text-indigo-700 text-center">
-          Pagos
+          Pagos pendientes
         </h1>
 
         {loading ? (
@@ -186,6 +220,7 @@ const Payments = () => {
         )}
       </div>
 
+      {/* Modal de pago */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
@@ -264,6 +299,9 @@ const Payments = () => {
 };
 
 export default Payments;
+
+
+
 
 
 
