@@ -19,12 +19,17 @@ public class PaymentMapper {
     }
 
     public PaymentResponseDTO toDTO(Payment payment) {
+        if (payment == null) {
+            return null;
+        }
+
         return PaymentResponseDTO.builder()
                 .id(payment.getId())
-                .bookingId(payment.getBooking().getId())
                 .amount(payment.getAmount())
                 .method(payment.getMethod())
                 .status(payment.getStatus())
+                .bookingId(payment.getBooking() != null ? payment.getBooking().getId() : null)
                 .build();
     }
+
 }
