@@ -10,18 +10,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class PaymentMapper {
 
-    public  Payment toEntity(PaymentRequestDTO dto, Booking booking) {
+    public Payment toEntity(PaymentRequestDTO dto, Booking booking) {
         return Payment.builder()
-                .booking(booking)
                 .amount(dto.getAmount())
+                .method(dto.getMethod())
+                .status(dto.getStatus())
+                .booking(booking)
                 .build();
     }
 
-    public  PaymentResponseDTO toDTO(Payment entity) {
+    public PaymentResponseDTO toDTO(Payment payment) {
         return PaymentResponseDTO.builder()
-                .id(entity.getId())
-                .bookingId(entity.getBooking() != null ? entity.getBooking().getId() : null)
-                .amount(entity.getAmount())
+                .id(payment.getId())
+                .bookingId(payment.getBooking().getId())
+                .amount(payment.getAmount())
+                .method(payment.getMethod())
+                .status(payment.getStatus())
                 .build();
     }
 }
