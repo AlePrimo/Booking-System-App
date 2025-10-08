@@ -10,7 +10,7 @@ import ServiceDetail from "./pages/ServiceDetail";
 import CustomerNotifications from "./pages/CustomerNotifications";
 import Users from "./pages/Users";
 import Payments from "./pages/Payments";
-
+import ProviderServices from "./pages/provider/ProviderServices";
 import DashboardAdmin from "./pages/DashboardAdmin";
 import DashboardCustomer from "./pages/DashboardCustomer";
 import DashboardProvider from "./pages/DashboardProvider";
@@ -67,7 +67,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
+<Route path="/provider/servicios" element={<ProviderServices />} />
           {/* Rutas privadas CUSTOMER */}
           <Route
             path="/reservas"
