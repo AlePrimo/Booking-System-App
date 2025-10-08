@@ -93,7 +93,8 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+//    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER','PROVIDER')")
+    @PreAuthorize("#email == authentication.principal.username or hasRole('ADMIN')")
     @GetMapping("/email/{email}")
     @Operation(summary = "Obtener un usuario por email",
             responses = {
