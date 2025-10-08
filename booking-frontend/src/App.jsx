@@ -77,14 +77,14 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-       <Route
-         path="/notificaciones"
-         element={
-           <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
-             <CustomerNotifications />
-           </ProtectedRoute>
-         }
-       />
+          <Route
+            path="/notificaciones"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
+                <CustomerNotifications />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/servicios"
             element={

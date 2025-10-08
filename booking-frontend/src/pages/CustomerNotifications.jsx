@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getNotifications, markAsRead, deleteNotification } from "../api/notificationService";
+import { getNotifications } from "../api/notificationService";
 
 export default function CustomerNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -18,28 +18,47 @@ export default function CustomerNotifications() {
     try {
       const res = await getNotifications(0, 50, token);
       const filtered = (res.data.content || res.data).filter(n => n.recipientId === user.id);
-      setNotifications(filtered);
+
+      // Leemos los IDs ya marcados en localStorage
+      const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
+
+      const initialized = filtered.map(n => ({
+        ...n,
+        readVisual: n.read || readIds.includes(n.id)
+      }));
+
+      setNotifications(initialized);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const openNotification = async (notif) => {
+  const openNotification = (notif) => {
     setSelected(notif);
-    if (!notif.read) {
-      await markAsRead(notif.id, token);
-      fetchNotifications();
-    }
   };
 
-  const handleDelete = async (id) => {
-    await deleteNotification(id, token);
-    fetchNotifications();
+  const closeModal = (notif) => {
+    // Marcamos visualmente como leída al cerrar
+    setNotifications(prev =>
+      prev.map(n => n.id === notif.id ? { ...n, readVisual: true } : n)
+    );
+
+    // Guardamos el ID en localStorage para persistir lectura
+    const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
+    if (!readIds.includes(notif.id)) {
+      readIds.push(notif.id);
+      localStorage.setItem("readNotifications", JSON.stringify(readIds));
+    }
+
+    setSelected(null);
   };
 
   return (
     <div className="p-6">
-      <button onClick={() => navigate("/dashboard-customer")} className="px-4 py-2 mb-6 rounded bg-gray-200 hover:bg-gray-300 transition">
+      <button
+        onClick={() => navigate("/dashboard-customer")}
+        className="px-4 py-2 mb-6 rounded bg-gray-200 hover:bg-gray-300 transition"
+      >
         ← Volver al Dashboard
       </button>
 
@@ -54,16 +73,13 @@ export default function CustomerNotifications() {
               key={n.id}
               onClick={() => openNotification(n)}
               className={`p-4 rounded-lg shadow-md flex justify-between items-center cursor-pointer
-                ${n.read ? "bg-green-100" : "bg-red-100 hover:bg-red-200"}`}
+                ${n.readVisual ? "bg-green-100" : "bg-red-100 hover:bg-red-200"}`}
             >
               <div>
-                <p className="font-semibold">{n.message}</p>
-                <p className="text-sm text-gray-500">Tipo: {n.type}</p>
+                <p className="font-semibold">
+                  Tienes una notificación de tipo {n.type} el {new Date(n.createdAt).toLocaleString()}
+                </p>
               </div>
-              <button onClick={(e) => { e.stopPropagation(); handleDelete(n.id); }}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
-                Eliminar
-              </button>
             </li>
           ))}
         </ul>
@@ -76,7 +92,7 @@ export default function CustomerNotifications() {
             <h3 className="text-xl font-bold mb-4">Notificación</h3>
             <p className="mb-4">{selected.message}</p>
             <button
-              onClick={() => setSelected(null)}
+              onClick={() => closeModal(selected)}
               className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
             >
               Cerrar
@@ -87,5 +103,4 @@ export default function CustomerNotifications() {
     </div>
   );
 }
-
 
