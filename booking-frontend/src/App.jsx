@@ -7,7 +7,7 @@ import Register from "./pages/Register";
 import Bookings from "./pages/Bookings";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
-import Notifications from "./pages/Notifications";
+import CustomerNotifications from "./pages/CustomerNotifications";
 import Users from "./pages/Users";
 import Payments from "./pages/Payments";
 
@@ -77,14 +77,14 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/notificaciones"
-            element={
-              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
-                <Notifications />
-              </ProtectedRoute>
-            }
-          />
+       <Route
+         path="/notificaciones"
+         element={
+           <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
+             <CustomerNotifications />
+           </ProtectedRoute>
+         }
+       />
           <Route
             path="/servicios"
             element={
