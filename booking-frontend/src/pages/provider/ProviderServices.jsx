@@ -28,7 +28,9 @@ export default function ProviderServices() {
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Cargar servicios del proveedor logueado
+  // Estado para mostrar mensajes tipo toast
+  const [toast, setToast] = useState("");
+
   const fetchOfferings = async () => {
     if (!user || !token) return;
     setLoading(true);
@@ -52,6 +54,11 @@ export default function ProviderServices() {
     fetchOfferings();
   }, [page]);
 
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(""), 3000);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -68,8 +75,10 @@ export default function ProviderServices() {
     try {
       if (editingOffering) {
         await updateOffering(editingOffering.id, payload, token);
+        showToast("Servicio actualizado correctamente");
       } else {
         await createOffering(payload, token);
+        showToast("Servicio creado correctamente");
       }
       setShowForm(false);
       setEditingOffering(null);
@@ -96,6 +105,7 @@ export default function ProviderServices() {
     if (!window.confirm("¿Seguro que deseas eliminar este servicio?")) return;
     try {
       await deleteOffering(id, token);
+      showToast("Servicio eliminado correctamente");
       fetchOfferings();
     } catch (err) {
       console.error(err);
@@ -107,7 +117,14 @@ export default function ProviderServices() {
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (
-    <div className="p-6 min-h-screen bg-gray-100">
+    <div className="p-6 min-h-screen bg-gray-100 relative">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg transition">
+          {toast}
+        </div>
+      )}
+
       {/* Botón Volver al Dashboard */}
       <button
         onClick={() => navigate("/dashboard-provider")}
