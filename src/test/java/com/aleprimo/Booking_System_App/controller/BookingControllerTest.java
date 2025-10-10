@@ -11,6 +11,7 @@ import com.aleprimo.Booking_System_App.entity.enums.Role;
 import com.aleprimo.Booking_System_App.mapper.booking.BookingMapper;
 
 import com.aleprimo.Booking_System_App.service.BookingService;
+import com.aleprimo.Booking_System_App.service.NotificationService;
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import com.aleprimo.Booking_System_App.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +68,9 @@ class BookingControllerTest {
 
     @MockitoBean
     private BookingMapper bookingMapper;
+
+    @MockitoBean
+    private NotificationService notificationService;
 
     private User customer;
     private User provider;
