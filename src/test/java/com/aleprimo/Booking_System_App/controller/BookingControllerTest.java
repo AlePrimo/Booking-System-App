@@ -140,6 +140,7 @@ class BookingControllerTest {
                 .thenReturn(booking);
         when(bookingService.createBooking(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDTO(any(Booking.class))).thenReturn(responseDTO);
+     
 
         mockMvc.perform(post("/api/bookings")
                         .with(csrf())
@@ -202,6 +203,17 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.customerId").value(1L));
     }
+
+
+    @Test
+    void testGetBookingById_NotFound() throws Exception {
+        when(bookingService.getBookingById(99L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/bookings/99"))
+                .andExpect(status().isNotFound());
+    }
+
+
 
     @Test
     void testGetAllBookings() throws Exception {
