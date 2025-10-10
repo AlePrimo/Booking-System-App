@@ -63,6 +63,14 @@ class PaymentMapperTest {
         assertEquals(BigDecimal.valueOf(250.0), dto.getAmount());
         assertEquals(2L,dto.getBookingId());
     }
+    @Test
+    void testToDTONullPayment() {
+        // Act
+        PaymentResponseDTO dto = paymentMapper.toDTO(null);
+
+        // Assert
+        assertNull(dto, "El DTO debe ser null cuando el Payment es null");
+    }
 
     @Test
     void testToDTOWithNullBooking() {

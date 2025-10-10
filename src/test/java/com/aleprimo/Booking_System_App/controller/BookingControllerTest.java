@@ -140,7 +140,7 @@ class BookingControllerTest {
                 .thenReturn(booking);
         when(bookingService.createBooking(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDTO(any(Booking.class))).thenReturn(responseDTO);
-     
+
 
         mockMvc.perform(post("/api/bookings")
                         .with(csrf())
