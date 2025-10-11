@@ -14,7 +14,7 @@ import ProviderServices from "./pages/provider/ProviderServices";
 import DashboardAdmin from "./pages/DashboardAdmin";
 import DashboardCustomer from "./pages/DashboardCustomer";
 import DashboardProvider from "./pages/DashboardProvider";
-
+import ProviderNotifications from "./pages/provider/ProviderNotifications";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -93,6 +93,16 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/provider/notificaciones"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_PROVIDER"]}>
+                <ProviderNotifications />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/servicios/:id"
             element={
