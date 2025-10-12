@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 export default function ServiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, token, ensureUser } = useAuth(); // token desde contexto
+  const { user, token, ensureUser } = useAuth();
 
   const [service, setService] = useState(null);
   const [providerName, setProviderName] = useState("Desconocido");
@@ -19,6 +19,7 @@ export default function ServiceDetail() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [bookingData, setBookingData] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -62,22 +63,29 @@ export default function ServiceDetail() {
   };
 
   const handleConfirmBooking = async () => {
+    if (submitting) return;
     try {
       if (!token) {
         alert("Usuario no autenticado. Inicia sesión nuevamente.");
         return;
       }
 
-      // 🔹 Obtener usuario completo por email
-      const currentUser = await ensureUser();
+      setSubmitting(true);
 
+      const currentUser = await ensureUser();
       if (!currentUser || !currentUser.id) {
         alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
+        setSubmitting(false);
         return;
       }
 
-      let bookingDateTime = bookingData.bookingDateTime;
-      if (bookingDateTime.length === 16) bookingDateTime += ":00";
+      let bookingDateTime = new Date(bookingData.bookingDateTime);
+      if (isNaN(bookingDateTime.getTime())) {
+        alert("Fecha inválida");
+        setSubmitting(false);
+        return;
+      }
+      bookingDateTime = bookingDateTime.toISOString();
 
       await createBooking(
         {
@@ -94,6 +102,8 @@ export default function ServiceDetail() {
     } catch (err) {
       console.error("Error al crear la reserva:", err);
       alert("No se pudo crear la reserva.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -136,6 +146,7 @@ export default function ServiceDetail() {
           bookingData={bookingData}
           onConfirm={handleConfirmBooking}
           onCancel={() => setShowConfirmModal(false)}
+          submitting={submitting}
         />
       )}
     </div>

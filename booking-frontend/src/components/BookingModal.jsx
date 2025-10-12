@@ -9,7 +9,12 @@ export default function BookingModal({ service, onClose, onSubmit }) {
       setError("Debes seleccionar fecha y hora");
       return;
     }
-    onSubmit({ bookingDateTime: dateTime });
+    const isoDate = new Date(dateTime);
+    if (isNaN(isoDate.getTime())) {
+      setError("Fecha inválida");
+      return;
+    }
+    onSubmit({ bookingDateTime: isoDate.toISOString() });
   };
 
   return (
@@ -44,3 +49,4 @@ export default function BookingModal({ service, onClose, onSubmit }) {
     </div>
   );
 }
+
