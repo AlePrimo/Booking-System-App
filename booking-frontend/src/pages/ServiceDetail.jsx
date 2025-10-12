@@ -62,50 +62,46 @@ export default function ServiceDetail() {
     setShowConfirmModal(true);
   };
 
-  const handleConfirmBooking = async () => {
-    if (submitting) return;
-    try {
-      if (!token) {
-        alert("Usuario no autenticado. Inicia sesión nuevamente.");
-        return;
-      }
+ const handleConfirmBooking = async () => {
+   try {
+     if (!token) {
+       alert("Usuario no autenticado. Inicia sesión nuevamente.");
+       return;
+     }
 
-      setSubmitting(true);
+     // 🔹 Obtener usuario completo por email
+     const currentUser = await ensureUser();
 
-      const currentUser = await ensureUser();
-      if (!currentUser || !currentUser.id) {
-        alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
-        setSubmitting(false);
-        return;
-      }
+     if (!currentUser || !currentUser.id) {
+       alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
+       return;
+     }
 
-      let bookingDateTime = new Date(bookingData.bookingDateTime);
-      if (isNaN(bookingDateTime.getTime())) {
-        alert("Fecha inválida");
-        setSubmitting(false);
-        return;
-      }
-      bookingDateTime = bookingDateTime.toISOString();
+     // Convertir bookingDateTime a formato compatible con LocalDateTime
+     let bookingDateTime = new Date(bookingData.bookingDateTime);
 
-      await createBooking(
-        {
-          customerId: currentUser.id,
-          offeringId: service.id,
-          bookingDateTime,
-          status: "PENDING",
-        },
-        token
-      );
+     // Formateo "YYYY-MM-DDTHH:mm:ss"
+     const pad = (num) => num.toString().padStart(2, "0");
+     const formattedDateTime = `${bookingDateTime.getFullYear()}-${pad(bookingDateTime.getMonth() + 1)}-${pad(bookingDateTime.getDate())}T${pad(bookingDateTime.getHours())}:${pad(bookingDateTime.getMinutes())}:${pad(bookingDateTime.getSeconds())}`;
 
-      alert("Reserva creada con éxito");
-      setShowConfirmModal(false);
-    } catch (err) {
-      console.error("Error al crear la reserva:", err);
-      alert("No se pudo crear la reserva.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+     await createBooking(
+       {
+         customerId: currentUser.id,
+         offeringId: service.id,
+         bookingDateTime: formattedDateTime,
+         status: "PENDING",
+       },
+       token
+     );
+
+     alert("Reserva creada con éxito");
+     setShowConfirmModal(false);
+   } catch (err) {
+     console.error("Error al crear la reserva:", err);
+     alert("No se pudo crear la reserva.");
+   }
+ };
+
 
   if (loading) return <p className="p-6">Cargando servicio...</p>;
   if (error) return <p className="p-6 text-red-500">{error}</p>;
