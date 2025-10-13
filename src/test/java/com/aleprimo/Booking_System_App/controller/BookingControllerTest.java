@@ -69,8 +69,7 @@ class BookingControllerTest {
     @MockitoBean
     private BookingMapper bookingMapper;
 
-    @MockitoBean
-    private NotificationService notificationService;
+
 
     private User customer;
     private User provider;
@@ -141,14 +140,16 @@ class BookingControllerTest {
         when(bookingService.createBooking(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDTO(any(Booking.class))).thenReturn(responseDTO);
 
-
         mockMvc.perform(post("/api/bookings")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L));
+
+
     }
+
 
 
     @Test

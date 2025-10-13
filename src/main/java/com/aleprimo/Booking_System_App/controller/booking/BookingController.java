@@ -37,7 +37,7 @@ public class BookingController {
     private final UserService userService;
     private final OfferingService offeringService;
     private final BookingMapper bookingMapper;
-   private final NotificationService notificationService;
+
 
     @PostMapping
     @Operation(
@@ -55,7 +55,7 @@ public class BookingController {
                 bookingMapper.toEntity(dto, customer, offering)
         );
 
-     
+
 
         return ResponseEntity.ok(bookingMapper.toDTO(booking));
     }
