@@ -5,14 +5,13 @@ import com.aleprimo.Booking_System_App.dto.PageResponse;
 import com.aleprimo.Booking_System_App.dto.payment.PaymentRequestDTO;
 import com.aleprimo.Booking_System_App.dto.payment.PaymentResponseDTO;
 import com.aleprimo.Booking_System_App.entity.Booking;
-import com.aleprimo.Booking_System_App.entity.Notification;
+
 import com.aleprimo.Booking_System_App.entity.Payment;
-import com.aleprimo.Booking_System_App.entity.User;
-import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
+
 import com.aleprimo.Booking_System_App.entity.enums.PaymentStatus;
 import com.aleprimo.Booking_System_App.mapper.payment.PaymentMapper;
 import com.aleprimo.Booking_System_App.service.BookingService;
-import com.aleprimo.Booking_System_App.service.NotificationService;
+
 import com.aleprimo.Booking_System_App.service.PaymentService;
 import com.aleprimo.Booking_System_App.util.PageResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,13 +33,14 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final BookingService bookingService;
     private final PaymentMapper paymentMapper;
-    private final NotificationService notificationService;
+
 
     @PostMapping
-    @Operation(summary = "Crear un pago y notificar al proveedor y al cliente",
-            description = "Registra un pago asociado a una reserva, notifica al proveedor correspondiente y también al cliente que realizó el pago",
+    @Operation(
+            summary = "Crear un pago",
+            description = "Registra un pago asociado a una reserva",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Pago creado correctamente y notificaciones enviadas"),
+                    @ApiResponse(responseCode = "200", description = "Pago creado correctamente"),
                     @ApiResponse(responseCode = "400", description = "Error de validación")
             })
     public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody PaymentRequestDTO dto) {
@@ -57,36 +57,11 @@ public class PaymentController {
         payment.setStatus(PaymentStatus.PAID);
         Payment savedPayment = paymentService.createPayment(payment);
 
-        User provider = booking.getOffering().getProvider();
-        User customer = booking.getCustomer();
 
-
-        Notification notificationToProvider = Notification.builder()
-                .type(NotificationType.EMAIL)
-                .message("Has recibido un nuevo pago de " +
-                        customer.getName() +
-                        " por la reserva #" + booking.getId() +
-                        " por un monto de $" + dto.getAmount())
-                .recipient(provider)
-                .sent(false)
-                .build();
-
-        notificationService.createNotification(notificationToProvider);
-
-
-        Notification notificationToCustomer = Notification.builder()
-                .type(NotificationType.EMAIL)
-                .message("Has realizado un pago de $" + dto.getAmount() +
-                        " por la reserva #" + booking.getId() +
-                        " del servicio " + booking.getOffering().getDescription())
-                .recipient(customer)
-                .sent(false)
-                .build();
-
-        notificationService.createNotification(notificationToCustomer);
 
         return ResponseEntity.ok(paymentMapper.toDTO(savedPayment));
     }
+
 
 
     @DeleteMapping("/{id}")
