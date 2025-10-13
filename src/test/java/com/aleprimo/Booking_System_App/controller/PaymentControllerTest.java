@@ -135,14 +135,12 @@ class PaymentControllerTest {
                 .amount(BigDecimal.valueOf(2500))
                 .build();
     }
-
     @Test
     void testCreatePayment() throws Exception {
         when(bookingService.getBookingById(1L)).thenReturn(Optional.of(booking));
         when(paymentMapper.toEntity(any(PaymentRequestDTO.class), any(Booking.class))).thenReturn(payment);
         when(paymentService.createPayment(any(Payment.class))).thenReturn(payment);
         when(paymentMapper.toDTO(any(Payment.class))).thenReturn(responseDTO);
-        when(notificationService.createNotification(any())).thenAnswer(inv -> inv.getArgument(0));
 
         mockMvc.perform(post("/api/payments")
                         .with(csrf())
@@ -151,10 +149,12 @@ class PaymentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.amount").value(2500));
+
+        // ✅ Se eliminan mocks y verificaciones de notificationService
     }
+
     @Test
     void testCreatePayment_BookingNotFound() throws Exception {
-        // Simulamos que no existe la reserva
         when(bookingService.getBookingById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/api/payments")
@@ -168,9 +168,7 @@ class PaymentControllerTest {
 
     @Test
     void testCreatePayment_ExistingPaymentThrowsException() throws Exception {
-        // Simulamos que la reserva existe
         when(bookingService.getBookingById(1L)).thenReturn(Optional.of(booking));
-        // Simulamos que ya existe un pago para esa reserva
         when(paymentService.getPaymentByBookingId(1L)).thenReturn(Optional.of(payment));
 
         mockMvc.perform(post("/api/payments")
@@ -181,6 +179,7 @@ class PaymentControllerTest {
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof RuntimeException))
                 .andExpect(result -> assertEquals("Ya existe un pago registrado para esta reserva", result.getResolvedException().getMessage()));
     }
+
 
     @Test
     void testGetPaymentById() throws Exception {
