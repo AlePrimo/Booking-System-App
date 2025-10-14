@@ -4,6 +4,9 @@ import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notifications")
@@ -34,13 +37,10 @@ public class Notification {
     @JoinColumn(name = "user_id", nullable = false)
     private User recipient;
 
-    @Column(nullable = false, updatable = false)
-    private java.time.LocalDateTime createdAt;
+    @Column(name= "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = java.time.LocalDateTime.now();
-    }
 
 
 

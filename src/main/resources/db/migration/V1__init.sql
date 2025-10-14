@@ -12,8 +12,6 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL  -- almacena el enum como string (ROLE_ADMIN, ROLE_CUSTOMER, ROLE_PROVIDER)
 );
 
-
-
 -- Tabla de offerings (antes Service)
 CREATE TABLE offerings (
     id BIGSERIAL PRIMARY KEY,
@@ -42,12 +40,13 @@ CREATE TABLE payments (
     booking_id BIGINT NOT NULL UNIQUE REFERENCES bookings(id) ON DELETE CASCADE
 );
 
--- Tabla de notificaciones
+-- Tabla de notificaciones con created_at
 CREATE TABLE notifications (
     id BIGSERIAL PRIMARY KEY,
     type VARCHAR(20) NOT NULL,
     message VARCHAR(500) NOT NULL,
     sent BOOLEAN NOT NULL DEFAULT FALSE,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
