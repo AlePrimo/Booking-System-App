@@ -17,7 +17,8 @@ import DashboardProvider from "./pages/DashboardProvider";
 import ProviderNotifications from "./pages/provider/ProviderNotifications";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import ProviderReservas from "./pages/provider/ProviderReservas";
+import ProviderPagos from "./pages/provider/ProviderPagos";
 export default function App() {
   const { isSessionExpired, closeSessionAlert } = useAuth();
 
@@ -51,6 +52,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/provider/reservas" element={<ProviderReservas />} />
+          <Route path="/provider/pagos" element={<ProviderPagos />} />
           <Route
             path="/dashboard-customer"
             element={
