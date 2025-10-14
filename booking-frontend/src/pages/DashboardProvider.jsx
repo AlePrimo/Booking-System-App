@@ -18,7 +18,7 @@ export default function DashboardProvider() {
   const fetchNotifications = async () => {
     try {
       const res = await getNotifications(0, 50, token);
-      // Solo notificaciones donde el recipientId coincide con el provider logueado
+      // Filtra solo notificaciones para el provider logueado
       const userNotifications = (res.data.content || res.data).filter(
         (n) => n.recipientId === user.id
       );
@@ -79,6 +79,7 @@ export default function DashboardProvider() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
+      {/* Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-6 py-4 bg-gray-100 shadow-sm gap-4 sm:gap-0">
         <h1 className="text-5xl font-bold text-indigo-600">BookingApp</h1>
         {user && (
@@ -96,6 +97,7 @@ export default function DashboardProvider() {
         )}
       </header>
 
+      {/* Main */}
       <main className="flex-1 container mx-auto px-4 py-8">
         <h2 className="text-4xl font-bold text-center mb-12">Panel de Proveedor</h2>
 
