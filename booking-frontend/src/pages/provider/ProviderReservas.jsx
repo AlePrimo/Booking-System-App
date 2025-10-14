@@ -7,7 +7,7 @@ export default function ProviderReservas() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token"); // 👈 Ajustá si tu token se guarda distinto
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     loadBookings();
@@ -25,15 +25,14 @@ export default function ProviderReservas() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">📅 Reservas Recibidas</h1>
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
-        >
-          Volver al Dashboard
-        </button>
-      </div>
+      <button
+        onClick={() => navigate("/dashboard-provider")}
+        className="px-4 py-2 mb-6 rounded bg-gray-200 hover:bg-gray-300 transition"
+      >
+        ← Volver al Dashboard
+      </button>
+
+      <h1 className="text-3xl font-bold mb-6 text-indigo-600">📅 Reservas Recibidas</h1>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         <table className="min-w-full text-sm text-gray-700">
