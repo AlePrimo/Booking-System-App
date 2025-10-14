@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPayments } from "../api/paymentService";
+import { getPayments } from "../../api/paymentService";
 import { useNavigate } from "react-router-dom";
 
 export default function ProviderPagos() {

@@ -19,6 +19,8 @@ import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProviderReservas from "./pages/provider/ProviderReservas";
 import ProviderPagos from "./pages/provider/ProviderPagos";
+
+
 export default function App() {
   const { isSessionExpired, closeSessionAlert } = useAuth();
 

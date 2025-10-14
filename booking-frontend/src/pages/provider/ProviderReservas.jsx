@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getBookings } from "../api/bookingService";
+import { getBookings } from "../../api/bookingService";
 import { useNavigate } from "react-router-dom";
 
 export default function ProviderReservas() {
