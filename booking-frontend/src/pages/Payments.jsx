@@ -91,7 +91,6 @@ const Payments = () => {
     }
   };
 
-
   // 🔹 Abrir modal con la reserva seleccionada
   const handlePayment = () => {
     if (!selectedBookingId) {
@@ -123,13 +122,31 @@ const Payments = () => {
       console.log("Pago creado:", paymentResp.data);
 
       // 2) Crear notificación para el proveedor
-      const notifPayload = {
+      const notifToProvider = {
         message: `Has recibido un nuevo pago de ${user.name} por la reserva #${selectedBooking.id}: $${selectedBooking.offeringPrice}`,
         recipientId: selectedBooking.providerId,
         type: "EMAIL",
       };
 
-      await createNotification(notifPayload, token);
+      // 3) Crear notificación para el customer (confirmación)
+      const notifToCustomer = {
+        message: `Has realizado un pago de $${selectedBooking.offeringPrice} por la reserva #${selectedBooking.id} del servicio ${selectedBooking.offeringName}`,
+        recipientId: user.id,
+        type: "EMAIL",
+      };
+
+      // Llamadas a la API de notificaciones
+      try {
+        await createNotification(notifToProvider, token);
+      } catch (err) {
+        console.error("Error creando notificación proveedor:", err);
+      }
+
+      try {
+        await createNotification(notifToCustomer, token);
+      } catch (err) {
+        console.error("Error creando notificación customer:", err);
+      }
 
       alert(`Pago registrado y notificación enviada al proveedor.`);
 
@@ -262,7 +279,7 @@ const Payments = () => {
               </select>
             </div>
 
-            {(paymentMethod === "CREDIT_CARD") && (
+            {paymentMethod === "CREDIT_CARD" && (
               <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-1">
                   Número de tarjeta

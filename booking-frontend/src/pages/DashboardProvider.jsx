@@ -19,9 +19,8 @@ export default function DashboardProvider() {
     try {
       const res = await getNotifications(0, 50, token);
       // Solo notificaciones donde el recipientId coincide con el provider logueado
-      // y provienen de un ROLE_CUSTOMER
       const userNotifications = (res.data.content || res.data).filter(
-        (n) => n.recipientId === user.id && n.senderRole === "ROLE_CUSTOMER"
+        (n) => n.recipientId === user.id
       );
 
       const readIds = JSON.parse(localStorage.getItem("readProviderNotifications") || "[]");

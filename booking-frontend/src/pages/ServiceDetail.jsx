@@ -6,6 +6,7 @@ import { getUserById } from "../api/userService";
 import BookingModal from "../components/BookingModal";
 import ConfirmBookingModal from "../components/ConfirmBookingModal";
 import { useAuth } from "../context/AuthContext";
+import { createNotification } from "../api/notificationService";
 
 export default function ServiceDetail() {
   const { id } = useParams();
@@ -62,46 +63,83 @@ export default function ServiceDetail() {
     setShowConfirmModal(true);
   };
 
- const handleConfirmBooking = async () => {
-   try {
-     if (!token) {
-       alert("Usuario no autenticado. Inicia sesión nuevamente.");
-       return;
-     }
+  const handleConfirmBooking = async () => {
+    try {
+      if (!token) {
+        alert("Usuario no autenticado. Inicia sesión nuevamente.");
+        return;
+      }
 
-     // 🔹 Obtener usuario completo por email
-     const currentUser = await ensureUser();
+      setSubmitting(true);
 
-     if (!currentUser || !currentUser.id) {
-       alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
-       return;
-     }
+      // 🔹 Obtener usuario completo por email
+      const currentUser = await ensureUser();
 
-     // Convertir bookingDateTime a formato compatible con LocalDateTime
-     let bookingDateTime = new Date(bookingData.bookingDateTime);
+      if (!currentUser || !currentUser.id) {
+        alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
+        setSubmitting(false);
+        return;
+      }
 
-     // Formateo "YYYY-MM-DDTHH:mm:ss"
-     const pad = (num) => num.toString().padStart(2, "0");
-     const formattedDateTime = `${bookingDateTime.getFullYear()}-${pad(bookingDateTime.getMonth() + 1)}-${pad(bookingDateTime.getDate())}T${pad(bookingDateTime.getHours())}:${pad(bookingDateTime.getMinutes())}:${pad(bookingDateTime.getSeconds())}`;
+      // Convertir bookingDateTime a formato compatible con LocalDateTime
+      let bookingDateTime = new Date(bookingData.bookingDateTime);
 
-     await createBooking(
-       {
-         customerId: currentUser.id,
-         offeringId: service.id,
-         bookingDateTime: formattedDateTime,
-         status: "PENDING",
-       },
-       token
-     );
+      // Formateo "YYYY-MM-DDTHH:mm:ss"
+      const pad = (num) => num.toString().padStart(2, "0");
+      const formattedDateTime = `${bookingDateTime.getFullYear()}-${pad(
+        bookingDateTime.getMonth() + 1
+      )}-${pad(bookingDateTime.getDate())}T${pad(bookingDateTime.getHours())}:${pad(
+        bookingDateTime.getMinutes()
+      )}:${pad(bookingDateTime.getSeconds())}`;
 
-     alert("Reserva creada con éxito");
-     setShowConfirmModal(false);
-   } catch (err) {
-     console.error("Error al crear la reserva:", err);
-     alert("No se pudo crear la reserva.");
-   }
- };
+      // 1) Crear la reserva
+      await createBooking(
+        {
+          customerId: currentUser.id,
+          offeringId: service.id,
+          bookingDateTime: formattedDateTime,
+          status: "PENDING",
+        },
+        token
+      );
 
+      // 2) Crear notificaciones explicitamente (frontend) — provider y customer
+      // Notificación para el provider
+      const notifToProvider = {
+        message: `Tienes una nueva reserva de ${currentUser.name} para el servicio ${service.description || service.name} en fecha ${formattedDateTime}`,
+        recipientId: service.providerId, // providerId proviene del servicio
+        type: "EMAIL",
+      };
+
+      // Notificación para el customer (confirmación)
+      const notifToCustomer = {
+        message: `Has reservado el servicio ${service.description || service.name} con ${providerName} para la fecha ${formattedDateTime}`,
+        recipientId: currentUser.id,
+        type: "EMAIL",
+      };
+
+      // Llamadas separadas; si alguna falla, dejamos que el flujo de reserva siga (pero logueamos)
+      try {
+        await createNotification(notifToProvider, token);
+      } catch (err) {
+        console.error("Error creando notificación al provider:", err);
+      }
+
+      try {
+        await createNotification(notifToCustomer, token);
+      } catch (err) {
+        console.error("Error creando notificación al customer:", err);
+      }
+
+      alert("Reserva creada con éxito");
+      setShowConfirmModal(false);
+    } catch (err) {
+      console.error("Error al crear la reserva:", err);
+      alert("No se pudo crear la reserva.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return <p className="p-6">Cargando servicio...</p>;
   if (error) return <p className="p-6 text-red-500">{error}</p>;

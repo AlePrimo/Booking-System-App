@@ -11,7 +11,7 @@ import com.aleprimo.Booking_System_App.entity.enums.Role;
 import com.aleprimo.Booking_System_App.mapper.booking.BookingMapper;
 
 import com.aleprimo.Booking_System_App.service.BookingService;
-import com.aleprimo.Booking_System_App.service.NotificationService;
+
 import com.aleprimo.Booking_System_App.service.OfferingService;
 import com.aleprimo.Booking_System_App.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +35,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
