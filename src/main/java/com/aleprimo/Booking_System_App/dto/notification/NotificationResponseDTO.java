@@ -4,6 +4,8 @@ import com.aleprimo.Booking_System_App.entity.enums.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +25,10 @@ public class NotificationResponseDTO {
     private NotificationType type;
     @Schema(description = "Indica si la notificación ya fue enviada", example = "true")
     private boolean sent;
+
+    @Schema(description = "Fecha de creación de la notificación", example = "2025-10-13T18:45:00")
+    private LocalDateTime createdAt;
+
+
+
 }

@@ -26,6 +26,7 @@ public class NotificationMapper {
                 .recipientId(entity.getRecipient() != null ? entity.getRecipient().getId() : null)
                 .sent(entity.isSent())
                 .type(entity.getType())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 }

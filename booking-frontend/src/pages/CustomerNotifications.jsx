@@ -19,7 +19,6 @@ export default function CustomerNotifications() {
       const res = await getNotifications(0, 50, token);
       const filtered = (res.data.content || res.data).filter(n => n.recipientId === user.id);
 
-      // Leemos los IDs ya marcados en localStorage
       const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
 
       const initialized = filtered.map(n => ({
@@ -33,17 +32,13 @@ export default function CustomerNotifications() {
     }
   };
 
-  const openNotification = (notif) => {
-    setSelected(notif);
-  };
+  const openNotification = (notif) => setSelected(notif);
 
   const closeModal = (notif) => {
-    // Marcamos visualmente como leída al cerrar
     setNotifications(prev =>
       prev.map(n => n.id === notif.id ? { ...n, readVisual: true } : n)
     );
 
-    // Guardamos el ID en localStorage para persistir lectura
     const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
     if (!readIds.includes(notif.id)) {
       readIds.push(notif.id);
@@ -51,6 +46,12 @@ export default function CustomerNotifications() {
     }
 
     setSelected(null);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Sin fecha";
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? "Fecha inválida" : date.toLocaleString();
   };
 
   return (
@@ -77,15 +78,15 @@ export default function CustomerNotifications() {
             >
               <div>
                 <p className="font-semibold">
-                  Tienes una notificación de tipo {n.type} el {new Date(n.createdAt).toLocaleString()}
+                  {n.type} — {formatDate(n.createdAt)}
                 </p>
+                <p className="text-sm text-gray-700 truncate">{n.message}</p>
               </div>
             </li>
           ))}
         </ul>
       )}
 
-      {/* Modal */}
       {selected && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
@@ -103,4 +104,3 @@ export default function CustomerNotifications() {
     </div>
   );
 }
-
