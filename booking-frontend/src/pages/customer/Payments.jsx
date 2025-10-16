@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { getBookings } from "../api/bookingService";
-import { getOfferingById } from "../api/offeringService";
-import { getUserById } from "../api/userService";
-import { createPayment, getPayments } from "../api/paymentService";
-import { createNotification } from "../api/notificationService";
+import { useAuth } from "../../context/AuthContext";
+import { getBookings } from "../../api/bookingService";
+import { getOfferingById } from "../../api/offeringService";
+import { getUserById } from "../../api/userService";
+import { createPayment, getPayments } from "../../api/paymentService";
+import { createNotification } from "../../api/notificationService";
 
 Modal.setAppElement("#root");
 

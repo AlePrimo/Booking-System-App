@@ -1,8 +1,8 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { FaServicestack, FaCalendarAlt, FaBell, FaMoneyBillWave } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { getNotifications } from "../api/notificationService";
+import { getNotifications } from "../../api/notificationService";
 
 export default function DashboardProvider() {
   const { user, logout, token } = useAuth();

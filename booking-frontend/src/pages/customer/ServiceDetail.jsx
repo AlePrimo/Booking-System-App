@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getOfferings } from "../api/offeringService";
-import { createBooking } from "../api/bookingService";
-import { getUserById } from "../api/userService";
-import BookingModal from "../components/BookingModal";
-import ConfirmBookingModal from "../components/ConfirmBookingModal";
-import { useAuth } from "../context/AuthContext";
-import { createNotification } from "../api/notificationService";
+import { getOfferings } from "../../api/offeringService";
+import { createBooking } from "../../api/bookingService";
+import { getUserById } from "../../api/userService";
+import BookingModal from "../../components/BookingModal";
+import ConfirmBookingModal from "../../components/ConfirmBookingModal";
+import { useAuth } from "../../context/AuthContext";
+import { createNotification } from "../../api/notificationService";
 
 export default function ServiceDetail() {
   const { id } = useParams();

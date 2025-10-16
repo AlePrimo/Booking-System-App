@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { getNotifications } from "../api/notificationService";
+import { useAuth } from "../../context/AuthContext";
+import { getNotifications } from "../../api/notificationService";
 
 export default function CustomerNotifications() {
   const [notifications, setNotifications] = useState([]);

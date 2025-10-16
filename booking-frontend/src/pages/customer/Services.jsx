@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getOfferings } from "../api/offeringService";
+import { getOfferings } from "../../api/offeringService";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Services() {
   const navigate = useNavigate();
