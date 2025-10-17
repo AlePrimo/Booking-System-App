@@ -56,6 +56,8 @@ export default function App() {
           />
           <Route path="/provider/reservas" element={<ProviderReservas />} />
           <Route path="/provider/pagos" element={<ProviderPagos />} />
+          <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+
           <Route
             path="/dashboard-customer"
             element={
