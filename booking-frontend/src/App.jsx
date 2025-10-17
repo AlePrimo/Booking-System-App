@@ -11,7 +11,7 @@ import CustomerNotifications from "./pages/customer/CustomerNotifications";
 import Users from "./pages/Users";
 import Payments from "./pages/customer/Payments";
 import ProviderServices from "./pages/provider/ProviderServices";
-import DashboardAdmin from "./pages/DashboardAdmin";
+import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import DashboardCustomer from "./pages/customer/DashboardCustomer";
 import DashboardProvider from "./pages/provider/DashboardProvider";
 import ProviderNotifications from "./pages/provider/ProviderNotifications";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserById, getUserByEmail, getAllUsers, deleteUser } from "../../api/userService";
+import { getUserById, getUserByEmail, getUsers, deleteUser } from "../../api/userService";
 import { FaSearch, FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 
 export default function DashboardAdmin() {

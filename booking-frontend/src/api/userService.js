@@ -19,3 +19,7 @@ export const deleteUser = (id, token) =>
   api.delete(`/api/users/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+export const getUserByEmail = (email, token) =>
+  api.get(`/api/users/email/${email}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
