@@ -30,6 +30,7 @@ export default function PaymentManagementPage() {
       setPayments(data.content || data);
       setFiltered(data.content || data);
       setTotalPages(data.totalPages || 1);
+
     } catch (err) {
       console.error(err);
       setError("Error al obtener pagos");

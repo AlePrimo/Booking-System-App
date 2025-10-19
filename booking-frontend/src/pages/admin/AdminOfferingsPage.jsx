@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getOfferings } from "../../api/offeringService";
+import { getUserById } from "../../api/userService";
 import { FaArrowLeft, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +22,31 @@ export default function AdminOfferingsPage() {
     setLoading(true);
     try {
       const res = await getOfferings(page, 10, token);
-      setOfferings(res.data.content || res.data);
+      const data = res.data.content || res.data;
+
+      // 🔸 Enriquecemos los offerings con los datos del proveedor
+      const offeringsWithProviders = await Promise.all(
+        data.map(async (off) => {
+          try {
+            const userRes = await getUserById(off.providerId, token);
+            const user = userRes.data;
+            return {
+              ...off,
+              providerName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+              duration: off.durationMinutes, // usar el campo que ya tenías
+            };
+          } catch (err) {
+            console.error(`Error obteniendo proveedor ${off.providerId}`, err);
+            return {
+              ...off,
+              providerName: "N/A",
+              duration: off.durationMinutes,
+            };
+          }
+        })
+      );
+
+      setOfferings(offeringsWithProviders);
       setTotalPages(res.data.totalPages || 1);
     } catch (err) {
       console.error("Error al cargar servicios:", err);
@@ -72,6 +97,7 @@ export default function AdminOfferingsPage() {
                 <th className="p-3 text-left">ID</th>
                 <th className="p-3 text-left">Proveedor</th>
                 <th className="p-3 text-left">Nombre</th>
+                <th className="p-3 text-left">Descripción</th>
                 <th className="p-3 text-left">Precio</th>
                 <th className="p-3 text-left">Duración</th>
               </tr>
@@ -79,7 +105,7 @@ export default function AdminOfferingsPage() {
             <tbody>
               {filteredOfferings.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="p-4 text-center text-gray-500">
+                  <td colSpan="6" className="p-4 text-center text-gray-500">
                     No hay servicios que coincidan con la búsqueda.
                   </td>
                 </tr>
@@ -89,6 +115,7 @@ export default function AdminOfferingsPage() {
                     <td className="p-3">{o.id}</td>
                     <td className="p-3">{o.providerName || "N/A"}</td>
                     <td className="p-3">{o.name}</td>
+                    <td className="p-3">{o.description}</td>
                     <td className="p-3">${o.price}</td>
                     <td className="p-3">
                       {o.duration ? `${o.duration} min` : "N/A"}
@@ -131,4 +158,3 @@ export default function AdminOfferingsPage() {
     </div>
   );
 }
-
