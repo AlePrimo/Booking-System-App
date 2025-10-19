@@ -96,6 +96,9 @@ export default function DashboardAdmin() {
             <div
               key={card.title}
               onClick={() => navigate(card.path)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter") navigate(card.path); }}
               className={`shadow-md rounded-lg p-6 cursor-pointer hover:shadow-xl transition transform hover:-translate-y-1
                 ${card.title === "Notificaciones" && card.highlight ? "bg-red-500" : "bg-white"}`}
             >
