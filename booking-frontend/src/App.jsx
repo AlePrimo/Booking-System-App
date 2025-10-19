@@ -21,6 +21,9 @@ import ProviderReservas from "./pages/provider/ProviderReservas";
 import ProviderPagos from "./pages/provider/ProviderPagos";
 import EditUserPage from "./pages/admin/EditUserPage";
 import UserManagementPage from "./pages/admin/UserManagementPage";
+import PaymentManagementPage from "./pages/admin/PaymentManagementPage";
+import AdminOfferingsPage from "./pages/admin/AdminOfferingsPage";
+
 export default function App() {
   const { isSessionExpired, closeSessionAlert } = useAuth();
 
@@ -45,20 +48,58 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Dashboards */}
+          {/* ADMIN - dashboard (ruta canonical) */}
           <Route
-            path="/dashboard-admin"
+            path="/admin/dashboard"
             element={
               <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
                 <DashboardAdmin />
               </ProtectedRoute>
             }
           />
+          {/* Compatibilidad: si alguien usa /dashboard-admin redirijo a /admin/dashboard */}
+          <Route path="/dashboard-admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+          {/* ADMIN - funcionalidades */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                <UserManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id/edit"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                <EditUserPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/payments"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                <PaymentManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/offerings"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                <AdminOfferingsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Provider misc routes (mantengo como tenías) */}
           <Route path="/provider/reservas" element={<ProviderReservas />} />
           <Route path="/provider/pagos" element={<ProviderPagos />} />
-          <Route path="/dashboard-admin" element={<DashboardAdmin />} />
-            <Route path="/admin/users/:id/edit" element={<EditUserPage />} />
-<Route path="/admin/users" element={<UserManagementPage />} />
+          <Route path="/provider/servicios" element={<ProviderServices />} />
+
+          {/* Dashboards por rol */}
           <Route
             path="/dashboard-customer"
             element={
@@ -75,7 +116,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-<Route path="/provider/servicios" element={<ProviderServices />} />
+
           {/* Rutas privadas CUSTOMER */}
           <Route
             path="/reservas"
@@ -88,7 +129,7 @@ export default function App() {
           <Route
             path="/notificaciones"
             element={
-              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER"]}>
+              <ProtectedRoute allowedRoles={["ROLE_CUSTOMER","ROLE_ADMIN","ROLE_PROVIDER"]}>
                 <CustomerNotifications />
               </ProtectedRoute>
             }
@@ -101,16 +142,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
-          <Route
-            path="/provider/notificaciones"
-            element={
-              <ProtectedRoute allowedRoles={["ROLE_PROVIDER"]}>
-                <ProviderNotifications />
-              </ProtectedRoute>
-            }
-          />
-
           <Route
             path="/servicios/:id"
             element={
@@ -120,7 +151,7 @@ export default function App() {
             }
           />
 
-          {/* Rutas privadas ADMIN */}
+          {/* Rutas admin legacy (si las querés mantener) */}
           <Route
             path="/ofertas"
             element={
@@ -162,4 +193,3 @@ export default function App() {
     </div>
   );
 }
-
