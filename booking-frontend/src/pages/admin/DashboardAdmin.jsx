@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { FaUsers, FaBell } from "react-icons/fa";
+import { FaUsers, FaBell, FaMoneyBillWave, FaServicestack } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { getNotifications } from "../../api/notificationService";
 
@@ -20,21 +20,17 @@ export default function DashboardAdmin() {
       const res = await getNotifications(0, 50, token);
       const userNotifications = (res.data.content || res.data).filter(n => n.recipientId === user.id);
       const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
-
       const initialized = userNotifications.map(n => ({
         ...n,
         readVisual: n.read || readIds.includes(n.id)
       }));
-
       setNotifications(initialized);
-      const unread = initialized.some(n => !n.readVisual);
-      setHasUnread(unread);
+      setHasUnread(initialized.some(n => !n.readVisual));
     } catch (err) {
       console.error(err);
     }
   };
 
-  // 🔔 Escuchar cambios en localStorage (para notificaciones leídas visualmente)
   useEffect(() => {
     const handleStorage = () => {
       const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
@@ -53,6 +49,18 @@ export default function DashboardAdmin() {
       path: "/admin/users",
     },
     {
+      title: "Pagos",
+      description: "Ver pagos recibidos y realizados, con filtros.",
+      icon: <FaMoneyBillWave size={30} className="text-green-600" />,
+      path: "/admin/payments",
+    },
+    {
+      title: "Servicios",
+      description: "Ver y filtrar todos los servicios publicados.",
+      icon: <FaServicestack size={30} className="text-blue-600" />,
+      path: "/admin/offerings",
+    },
+    {
       title: "Notificaciones",
       description: "Revisa tus notificaciones como administrador.",
       icon: <FaBell size={30} className={hasUnread ? "text-white" : "text-yellow-500"} />,
@@ -63,7 +71,6 @@ export default function DashboardAdmin() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-6 py-4 bg-gray-100 shadow-sm gap-4 sm:gap-0">
         <h1 className="text-5xl font-bold text-indigo-600">BookingApp</h1>
         {user && (
@@ -81,7 +88,6 @@ export default function DashboardAdmin() {
         )}
       </header>
 
-      {/* Main content */}
       <main className="flex-1 container mx-auto px-4 py-8">
         <h2 className="text-4xl font-bold text-center mb-12">Panel de Administración</h2>
 
