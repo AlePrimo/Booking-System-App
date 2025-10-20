@@ -21,6 +21,23 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
+  // 🪄 Formatear el nombre del rol para mostrarlo más legible
+  const formatRole = (role) => {
+    if (!role) return "Sin rol";
+    switch (role) {
+      case "ROLE_ADMIN":
+        return "Administrador";
+      case "ROLE_PROVIDER":
+        return "Proveedor";
+      case "ROLE_CUSTOMER":
+        return "Cliente";
+      default:
+        return role;
+    }
+  };
+
+
   // 📥 Listar usuarios paginados
   const fetchUsers = async () => {
     if (!token) return;
@@ -202,9 +219,10 @@ export default function UserManagementPage() {
                   <div>
                     <h3 className="font-semibold text-lg text-indigo-600">{user.name}</h3>
                     <p className="text-gray-600">{user.email}</p>
-                    <p className="text-gray-500 text-sm">
-                      Rol: {user.role?.name || "Sin rol"}
-                    </p>
+              <p className="text-gray-500 text-sm">
+                Rol: {formatRole(user.role)}
+              </p>
+
                   </div>
                   <div className="flex gap-3">
                     <button
@@ -252,9 +270,10 @@ export default function UserManagementPage() {
           <div>
             <h3 className="font-semibold text-lg text-indigo-600">{singleUser.name}</h3>
             <p className="text-gray-600">{singleUser.email}</p>
-            <p className="text-gray-500 text-sm">
-              Rol: {singleUser.role?.name || "Sin rol"}
-            </p>
+          <p className="text-gray-500 text-sm">
+            Rol: {formatRole(singleUser.role)}
+          </p>
+
           </div>
           <div className="flex gap-3">
             <button
