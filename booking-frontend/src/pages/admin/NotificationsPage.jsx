@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
-import { getNotifications } from "../api/notificationService";
+import { getNotifications } from "../../api/notificationService";
 
 export default function NotificationsPage() {
   const { user, token } = useAuth();

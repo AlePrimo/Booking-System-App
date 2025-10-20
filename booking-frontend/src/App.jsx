@@ -23,7 +23,7 @@ import EditUserPage from "./pages/admin/EditUserPage";
 import UserManagementPage from "./pages/admin/UserManagementPage";
 import PaymentManagementPage from "./pages/admin/PaymentManagementPage";
 import AdminOfferingsPage from "./pages/admin/AdminOfferingsPage";
-
+import NotificationsPage from "./pages/admin/NotificationsPage";
 export default function App() {
   const { isSessionExpired, closeSessionAlert } = useAuth();
 
@@ -85,6 +85,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/notificaciones" element={<NotificationsPage />} />
           <Route
             path="/admin/offerings"
             element={

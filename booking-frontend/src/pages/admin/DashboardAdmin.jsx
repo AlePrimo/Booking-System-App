@@ -18,14 +18,16 @@ export default function DashboardAdmin() {
   const fetchNotifications = async () => {
     try {
       const res = await getNotifications(0, 50, token);
-      const userNotifications = (res.data.content || res.data).filter(n => n.recipientId === user.id);
+      const userNotifications = (res.data.content || res.data).filter(
+        (n) => n.recipientId === user.id
+      );
       const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
-      const initialized = userNotifications.map(n => ({
+      const initialized = userNotifications.map((n) => ({
         ...n,
-        readVisual: n.read || readIds.includes(n.id)
+        readVisual: n.read || readIds.includes(n.id),
       }));
       setNotifications(initialized);
-      setHasUnread(initialized.some(n => !n.readVisual));
+      setHasUnread(initialized.some((n) => !n.readVisual));
     } catch (err) {
       console.error(err);
     }
@@ -34,7 +36,7 @@ export default function DashboardAdmin() {
   useEffect(() => {
     const handleStorage = () => {
       const readIds = JSON.parse(localStorage.getItem("readNotifications") || "[]");
-      const unread = notifications.some(n => !readIds.includes(n.id));
+      const unread = notifications.some((n) => !readIds.includes(n.id));
       setHasUnread(unread);
     };
     window.addEventListener("storage", handleStorage);
@@ -65,8 +67,8 @@ export default function DashboardAdmin() {
       description: "Revisa tus notificaciones como administrador.",
       icon: <FaBell size={30} className={hasUnread ? "text-white" : "text-yellow-500"} />,
       path: "/notificaciones",
-      highlight: hasUnread
-    }
+      highlight: hasUnread,
+    },
   ];
 
   return (
@@ -98,17 +100,27 @@ export default function DashboardAdmin() {
               onClick={() => navigate(card.path)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === "Enter") navigate(card.path); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") navigate(card.path);
+              }}
               className={`shadow-md rounded-lg p-6 cursor-pointer hover:shadow-xl transition transform hover:-translate-y-1
                 ${card.title === "Notificaciones" && card.highlight ? "bg-red-500" : "bg-white"}`}
             >
               <div className="flex items-center gap-4 mb-4">
                 {card.icon}
-                <h3 className={`text-xl font-semibold ${card.title === "Notificaciones" && card.highlight ? "text-white" : "text-black"}`}>
+                <h3
+                  className={`text-xl font-semibold ${
+                    card.title === "Notificaciones" && card.highlight
+                      ? "text-white"
+                      : "text-black"
+                  }`}
+                >
                   {card.title}
                 </h3>
               </div>
-              {!card.highlight && <p className="text-gray-600 text-sm">{card.description}</p>}
+              {!card.highlight && (
+                <p className="text-gray-600 text-sm">{card.description}</p>
+              )}
             </div>
           ))}
         </div>
