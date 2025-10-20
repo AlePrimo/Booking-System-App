@@ -14,6 +14,9 @@ export default function AdminOfferingsPage() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("");
 
+  // 🧠 Cache local para no hacer fetch repetido de proveedores
+  const providerCache = {};
+
   useEffect(() => {
     if (token) fetchOfferings();
   }, [page, token]);
@@ -24,16 +27,30 @@ export default function AdminOfferingsPage() {
       const res = await getOfferings(page, 10, token);
       const data = res.data.content || res.data;
 
-      // 🔸 Enriquecemos los offerings con los datos del proveedor
       const offeringsWithProviders = await Promise.all(
         data.map(async (off) => {
-          try {
-            const userRes = await getUserById(off.providerId, token);
-            const user = userRes.data;
+          if (providerCache[off.providerId]) {
             return {
               ...off,
-              providerName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-              duration: off.durationMinutes, // usar el campo que ya tenías
+              providerName: providerCache[off.providerId],
+              duration: off.durationMinutes,
+            };
+          }
+
+          try {
+            const userRes = await getUserById(off.providerId, token);
+            console.log("📢 Usuario del providerId", off.providerId, userRes.data);
+
+            const user = userRes.data;
+            // ✅ Ahora tomamos directamente "name" del backend
+            const fullName = user.name?.trim() || "Sin nombre";
+
+            providerCache[off.providerId] = fullName;
+
+            return {
+              ...off,
+              providerName: fullName,
+              duration: off.durationMinutes,
             };
           } catch (err) {
             console.error(`Error obteniendo proveedor ${off.providerId}`, err);
@@ -62,7 +79,6 @@ export default function AdminOfferingsPage() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-100">
-      {/* 🔙 Volver */}
       <button
         onClick={() => navigate("/admin/dashboard")}
         className="px-3 py-1 border rounded mb-6 hover:bg-gray-200 transition"
@@ -75,7 +91,6 @@ export default function AdminOfferingsPage() {
         <h1 className="text-3xl font-bold text-indigo-600">Servicios</h1>
       </div>
 
-      {/* 🔍 Buscador */}
       <div className="flex mb-6 items-center border rounded px-2 max-w-md">
         <FaSearch className="text-gray-400 mr-2" />
         <input
