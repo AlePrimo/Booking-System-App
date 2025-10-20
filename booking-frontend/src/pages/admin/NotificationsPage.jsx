@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
 import { getNotifications } from "../../api/notificationService";
+import { FaArrowLeft } from "react-icons/fa";
 
 export default function NotificationsPage() {
   const { user, token } = useAuth();
@@ -26,36 +27,37 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      <header className="flex justify-between items-center px-6 py-4 bg-white shadow">
-        <h1 className="text-3xl font-bold text-indigo-600">Notificaciones</h1>
-        <button
-          onClick={() => navigate("/admin/dashboard")}
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-        >
-          Volver al Dashboard
-        </button>
-      </header>
+    <div className="p-6 min-h-screen bg-gray-100 relative">
+      {/* 🔙 Botón volver (estilo unificado con otras páginas) */}
+      <button
+        onClick={() => navigate("/admin/dashboard")}
+        className="px-3 py-1 border rounded mb-6 hover:bg-gray-200 transition"
+      >
+        <FaArrowLeft className="inline mr-2" />
+        Volver al Dashboard
+      </button>
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        {notifications.length === 0 ? (
-          <p className="text-gray-600 text-lg text-center">
-            No tienes notificaciones por el momento.
-          </p>
-        ) : (
-          <ul className="space-y-4">
-            {notifications.map((n) => (
-              <li
-                key={n.id}
-                className="bg-white shadow rounded-lg p-4 border border-gray-200"
-              >
-                <p className="font-semibold">{n.title || "Notificación"}</p>
-                <p className="text-gray-700">{n.message}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </main>
+      {/* 🧭 Título principal */}
+      <h1 className="text-3xl font-bold text-indigo-600 mb-6">Notificaciones</h1>
+
+      {/* 📨 Listado de notificaciones */}
+      {notifications.length === 0 ? (
+        <p className="text-gray-600 text-lg text-center">
+          No tienes notificaciones por el momento.
+        </p>
+      ) : (
+        <ul className="space-y-4">
+          {notifications.map((n) => (
+            <li
+              key={n.id}
+              className="bg-white shadow rounded-lg p-4 border border-gray-200 hover:shadow-lg transition"
+            >
+              <p className="font-semibold text-indigo-600">{n.title || "Notificación"}</p>
+              <p className="text-gray-700">{n.message}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
