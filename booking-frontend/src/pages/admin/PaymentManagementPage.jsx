@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getPayments, deletePayment } from "../../api/paymentService";
+import { getBookingById } from "../../api/bookingService";
+import { getOfferingById } from "../../api/offeringService";
+import { getUserById } from "../../api/userService";
 import { FaArrowLeft, FaSearch, FaList, FaTrash } from "react-icons/fa";
 
 export default function PaymentManagementPage() {
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  const [mode, setMode] = useState("list"); // list | searchProvider | searchCustomer
+  const [mode, setMode] = useState("list");
   const [payments, setPayments] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [searchValue, setSearchValue] = useState("");
@@ -20,17 +23,88 @@ export default function PaymentManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Cache para no repetir fetchs
+  const userCache = {};
+  const bookingCache = {};
+  const offeringCache = {};
+
   const fetchPayments = async () => {
     if (!token) return;
     setLoading(true);
     setError("");
+
     try {
       const res = await getPayments(page, size, token);
-      const data = res.data;
-      setPayments(data.content || data);
-      setFiltered(data.content || data);
-      setTotalPages(data.totalPages || 1);
+      const data = res.data.content || res.data;
 
+      const enriched = await Promise.all(
+        data.map(async (p) => {
+          let providerName = "N/A";
+          let customerName = "N/A";
+
+          try {
+            // 1️⃣ Obtener la booking asociada al pago
+            let booking;
+            if (bookingCache[p.bookingId]) {
+              booking = bookingCache[p.bookingId];
+            } else {
+              const bookingRes = await getBookingById(p.bookingId, token);
+              booking = bookingRes.data;
+              bookingCache[p.bookingId] = booking;
+            }
+
+            const customerId = booking.customerId;
+            const offeringId = booking.offeringId;
+
+            // 2️⃣ Obtener la offering asociada
+            let offering;
+            if (offeringCache[offeringId]) {
+              offering = offeringCache[offeringId];
+            } else {
+              const offeringRes = await getOfferingById(offeringId, token);
+              offering = offeringRes.data;
+              offeringCache[offeringId] = offering;
+            }
+
+            const providerId = offering.providerId;
+
+            // 3️⃣ Obtener nombre del customer
+            if (customerId) {
+              if (!userCache[customerId]) {
+                const userRes = await getUserById(customerId, token);
+                const user = userRes.data;
+                const fullName = user.name?.trim() || `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email || "Sin nombre";
+                userCache[customerId] = fullName;
+              }
+              customerName = userCache[customerId];
+            }
+
+            // 4️⃣ Obtener nombre del provider
+            if (providerId) {
+              if (!userCache[providerId]) {
+                const provRes = await getUserById(providerId, token);
+                const prov = provRes.data;
+                const fullName = prov.name?.trim() || `${prov.firstName || ""} ${prov.lastName || ""}`.trim() || prov.email || "Sin nombre";
+                userCache[providerId] = fullName;
+              }
+              providerName = userCache[providerId];
+            }
+
+          } catch (err) {
+            console.error("❌ Error obteniendo datos relacionados del pago:", err);
+          }
+
+          return {
+            ...p,
+            providerName,
+            customerName,
+          };
+        })
+      );
+
+      setPayments(enriched);
+      setFiltered(enriched);
+      setTotalPages(res.data.totalPages || 1);
     } catch (err) {
       console.error(err);
       setError("Error al obtener pagos");
@@ -68,12 +142,12 @@ export default function PaymentManagementPage() {
     const lower = searchValue.toLowerCase();
     let result = [];
     if (mode === "searchProvider") {
-      result = payments.filter(p =>
+      result = payments.filter((p) =>
         p.providerName?.toLowerCase().includes(lower)
       );
     } else if (mode === "searchCustomer") {
-      result = payments.filter(p =>
-        p.customerEmail?.toLowerCase().includes(lower)
+      result = payments.filter((p) =>
+        p.customerName?.toLowerCase().includes(lower)
       );
     }
     setFiltered(result);
@@ -81,14 +155,12 @@ export default function PaymentManagementPage() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 relative">
-      {/* ✅ Toast */}
       {toast && (
         <div className="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-lg transition">
           {toast}
         </div>
       )}
 
-      {/* 🔙 Volver */}
       <button
         onClick={() => navigate("/admin/dashboard")}
         className="px-3 py-1 border rounded mb-6 hover:bg-gray-200 transition"
@@ -97,7 +169,6 @@ export default function PaymentManagementPage() {
         Volver al Dashboard
       </button>
 
-      {/* 🧭 Selector de modo */}
       <div className="flex flex-wrap gap-4 mb-6">
         <button
           onClick={() => {
@@ -141,13 +212,14 @@ export default function PaymentManagementPage() {
         </button>
       </div>
 
-      {/* 🔍 Buscador */}
       {(mode === "searchProvider" || mode === "searchCustomer") && (
         <div className="mb-6 flex gap-2">
           <input
             type="text"
             placeholder={
-              mode === "searchProvider" ? "Nombre del provider..." : "Email del customer..."
+              mode === "searchProvider"
+                ? "Nombre del provider..."
+                : "Nombre del customer..."
             }
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
@@ -162,7 +234,6 @@ export default function PaymentManagementPage() {
         </div>
       )}
 
-      {/* 🧾 Listado */}
       {loading ? (
         <p>Cargando...</p>
       ) : error ? (
@@ -182,10 +253,10 @@ export default function PaymentManagementPage() {
                     Pago #{payment.id}
                   </h3>
                   <p className="text-gray-600">
-                    Provider: {payment.providerName || "N/A"}
+                    Provider: {payment.providerName}
                   </p>
                   <p className="text-gray-500 text-sm">
-                    Customer: {payment.customerEmail || "N/A"}
+                    Customer: {payment.customerName}
                   </p>
                   <p className="text-gray-500 text-sm">
                     Monto: ${payment.amount}
@@ -206,7 +277,6 @@ export default function PaymentManagementPage() {
             ))}
           </div>
 
-          {/* 📄 Paginación */}
           {mode === "list" && filtered.length > 0 && (
             <div className="flex justify-between items-center mt-6">
               <button
@@ -220,7 +290,9 @@ export default function PaymentManagementPage() {
                 Página {page + 1} de {totalPages}
               </span>
               <button
-                onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+                onClick={() =>
+                  setPage((p) => Math.min(p + 1, totalPages - 1))
+                }
                 disabled={page + 1 >= totalPages}
                 className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
               >
